@@ -1,0 +1,1 @@
+{"trigger":"interval","interval":1200,"cooldown_group":"air","cooldown":600,"chance":0,"radius":16,"attempts":16,"spawns":[{"entity":"minecraft:zombie","count":1,"avoid_line_of_sight":true}],"actions":[{"type":"directional_arrow_rain","entity":"minecraft:arrow","count":24,"height":24,"spread":16,"origin_offset_x":32,"origin_offset_z":-32}]}
