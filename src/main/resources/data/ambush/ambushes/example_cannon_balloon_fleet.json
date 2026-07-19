@@ -1,0 +1,83 @@
+{
+  "trigger": "interval",
+  "interval": 1200,
+  "cooldown_group": "air_structure_fleet",
+  "cooldown": 1200,
+  "chance": 0.05,
+  "spawns": [],
+  "sounds": ["minecraft:event.raid.horn"],
+  "actions": [
+    {
+      "type": "sable_formation",
+      "template": "ambush:cannonballoon",
+      "cannonballoon_flight_profile": true,
+      "placement": "air",
+      "offset_y": 32,
+      "air_search_attempts": 8,
+      "air_step": 4,
+      "base_facing": "north",
+      "facing": "player",
+      "max_retries": 5,
+      "lifetime_ticks": 6000,
+      "destroyed_cleanup_percent": 30,
+      "despawn_effect": {"type": "explosion", "power": 3.0, "fire": false, "block_damage": false},
+      "attach_child_sublevels": true,
+      "envelope_fill": 1.0,
+      "engine_burn_seconds": 300,
+      "throttle_signal": 15,
+      "steering_controls": [{"block": "simulated:steering_wheel", "range": 256, "horizontal_only": true, "require_living_crew": true, "update_ticks": 10, "mode": "continuous", "max_angle": 45, "behind_direction": "last"}],
+      "container_loot": [
+        {"blocks": ["minecraft:barrel"], "loot_table": "minecraft:chests/stronghold_corridor"}
+      ],
+      "entities": [
+        {
+          "nbt": {"id": "minecraft:pillager", "Health": 30.0, "CanPickUpLoot": false, "HandItems": [{"id": "minecraft:crossbow", "count": 1}, {}]},
+          "count": 8,
+          "local": [3, 4, 6],
+          "seat": true,
+          "aggro_range": 64,
+          "friendly_fire": false,
+          "persistent": true,
+          "tags": ["ambush_sable_guard", "cannon_fleet_crew"]
+        }
+      ],
+      "members": [
+        {"structure_key": "fleet_lead", "spawn_distance": 192, "spawn_bearing_degrees": 180},
+        {"structure_key": "fleet_left", "spawn_distance": 208, "spawn_bearing_degrees": 168},
+        {"structure_key": "fleet_right", "spawn_distance": 208, "spawn_bearing_degrees": 192}
+      ]
+    },
+    {
+      "type": "directional_cbc_shell_rain",
+      "source_structures": ["fleet_lead", "fleet_left", "fleet_right"],
+      "start_distance": 180,
+      "start_distance_poll_ticks": 20,
+      "source_delay_ticks": 20,
+      "block": "createbigcannons:he_shell",
+      "item": "createbigcannons:he_shell",
+      "fuze": "createbigcannons:timed_fuze",
+      "fuze_ticks": 160,
+      "velocity": 2.5,
+      "ballistic": true,
+      "gravity": 0.05,
+      "source_height": 64,
+      "source_forward_offset": 20,
+      "spread": 8,
+      "target_spread": 0,
+      "target_safe_radius": 0,
+      "bursts": [
+        {"after_ticks": 140, "count": 2},
+        {"after_ticks": 180, "count": 2},
+        {"after_ticks": 220, "count": 2}
+      ]
+    },
+    {
+      "type": "sound",
+      "sound": "minecraft:event.raid.horn",
+      "after_ticks": 240,
+      "at": "player",
+      "volume": 1.5,
+      "pitch": 1.0
+    }
+  ]
+}
