@@ -1,23 +1,35 @@
-# Ambush 0.1.0 - Initial beta
+# Ambush 0.1.2
 
-- Added datapack-driven, per-player ambush definitions for NeoForge 1.21.1.
-- Added interval, portal, active-block, and kill-count trigger support.
-- Added player-specific cooldowns and persisted world/server restart state.
-- Added bounded land, air, and water entity placement with visibility controls.
-- Added equipment, effects, sounds, passengers, conditional waves, and projectile-rain actions.
-- Added Sable aircraft assembly through Aeronautics Discovery's command pipeline.
-- Added aircraft directionality, player-facing orientation, fleet, surround, and tangent/orbit formations.
-- Added seated aircraft crews and moving-sublevel-aware crossbow aiming.
-- Added balloon fill, engine burn, altitude-selected throttle, container loot, and child-sublevel attachment.
-- Added restart-safe timed cleanup and configurable damage-percentage cleanup across parent, child, and split Sable structures.
-- Added configurable cleanup explosions and force-load/constraint cleanup.
-- Added optional Create Big Cannons shell waves with timed fuzes and source/target safety controls.
-- Made Create, Create Aeronautics/Simulated, Sable, Aeronautics Discovery, and Create Big Cannons optional integrations; unavailable actions fail closed while generic datapacks remain functional.
-- Added four bundled balloon schematics and a disabled-by-default master documentation encounter.
-- Disabled automatic chance for every bundled non-balloon example; balloon examples retain low automatic chances.
+## Framework
 
-Known limits:
+- Added validated datapack definitions, per-player ownership, targeting, persistent cooldowns, cooldown groups, chance buildup, counters, and cleanup.
+- Added flat, weighted, and failure-buildup chance models with configurable evaluation intervals.
+- Added admin-only commands, tab completion, validation, weight inspection, state reporting, debug logging, and forced testing.
 
-- Automatic orbit steering is not included; orbit facing is only an initial tangent.
-- Create Big Cannons actions require CBC and Ritchie's Projectile Library.
-- Sable aircraft actions require Aeronautics Discovery 1.4.4 or newer within the 1.4.x line when that optional integration is used.
+## Triggers and placement
+
+- Added interval, portal, active-block, environmental-duration, kill, inventory, trade, weather, altitude, biome, ocean, underwater, surface, and structure triggers.
+- Added structure IDs, structure tags, reusable structure groups, and loaded-structure approach tracking.
+- Added ground, water, underwater, air, ring, cluster, surround, formation, and out-of-sight placement.
+
+## Waves and projectiles
+
+- Added delayed, interval, death-gated, and chained entity waves with equipment, effects, passengers, ownership, aggression, and flying follow behavior.
+- Added vanilla, spectral, tipped, and registry-defined modded arrows.
+- Added directional arrows, potions, entities, validated projectiles, and CBC shell rains.
+- Added burst schedules, moving sources, activation ranges, launch height, source staggering, spread, exact targeting, safe radii, and ballistic compensation.
+
+## Structures and bosses
+
+- Added guarded Sable assembly without a separate assembly-helper dependency.
+- Added mixed-template fleets, persistent state, seated crews, deck spawning, container loot, child structures, and bounded cleanup.
+- Added structure-health boss bars, shared fleet health, percentage events, survival events, rewards, redstone, directional detection, steering, and propulsion controls.
+- Added proportional steering and player-relative engine/propeller direction maps. Boss ships run forward while the owner is ahead or beside them and reverse only in rear sectors.
+- Loading tickets are released during shutdown saving and restored after loading.
+
+## Bundled examples and fixes
+
+- Reduced bundled content to five command-only examples with natural chance zero.
+- Added boss, shared-health boss fleet, cannon-balloon fleet, directional arrow rain, and exhaustive master examples.
+- Fixed invisible or partially loaded ships, incorrect facing, steering signs, front-facing reverse propulsion, command cooldown interference, missing suggestions, percentage events, fog cleanup, directional sounds, projectile targeting, seated entities, ranged friendly fire, and incomplete-action chaining.
+- Bounded health scans, scheduled actions, retries, cleanup, and optional-integration failures to reduce stalls and error loops.

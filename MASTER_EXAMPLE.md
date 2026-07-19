@@ -84,9 +84,9 @@ The final three static-world actions are intentionally gated behind the impossib
 
 - `block_platform` fills ordinary world blocks and has no structure lifecycle.
 - `structure` runs vanilla `place template`; it does not create a Sable craft or automatic cleanup.
-- Despite its historical name, `sable_substructure` is also static template placement plus a pillager and is not Discovery assembly. Use `sable_structure` or `sable_formation` for production aircraft.
+- Despite its historical name, `sable_substructure` is static template placement plus a pillager and is not physics assembly. Use `sable_structure` or `sable_formation` for production aircraft.
 
-A direct `sable_structure` action is also gated behind that documentation dimension because the active formation already exercises the same Discovery queue and lifecycle with three members. `sable_sublevel` and `sable_sublevel_direct` are accepted compatibility aliases for `sable_structure`; prefer the explicit production name in new data.
+A direct `sable_structure` action is also gated behind that documentation dimension because the active formation already exercises the same assembly queue and lifecycle with three members. `sable_sublevel` and `sable_sublevel_direct` are accepted compatibility aliases for `sable_structure`; prefer the explicit production name in new data.
 
 ## Spawn-group notes and alternatives
 
@@ -103,7 +103,7 @@ A direct `sable_structure` action is also gated behind that documentation dimens
 
 ## Dependencies and portability
 
-- Sable assembly requires Sable 2.0.3 and Create Aeronautics: Discovery 1.4.4 in this build.
+- Sable assembly requires a compatible Sable and Aeronautics runtime. Ambush supplies its own guarded adapter and has no external assembly-helper dependency.
 - Engine and throttle post-processing require the installed Simulated blocks to exist in the schematic. If absent, only those requested post-process operations fail.
 - CBC rain requires Create Big Cannons and valid block, item, projectile, and fuze IDs. The master uses IDs verified against CBC 5.11.7.
 - Structure templates are resources at `data/<namespace>/structure/<path>.nbt`.
@@ -120,7 +120,7 @@ A direct `sable_structure` action is also gated behind that documentation dimens
 - Use `despawn_effect: "none"` for silent removal or tune explosion power, fire, and block damage explicitly.
 - Put mutually exclusive trigger/condition variants in separate definitions sharing one cooldown group to create a family of encounters without simultaneous activation.
 
-The runtime does not provide automatic orbital steering, arbitrary particle-script execution, claims integration, chunk generation, or a general quest/raid system. Those require a dedicated compatibility layer rather than additional JSON fields.
+The runtime does not provide automatic orbital steering, arbitrary particle-script execution, claims integration, chunk generation, or a general quest system. Those require a dedicated compatibility layer rather than additional JSON fields.
 
 ## Verification
 
