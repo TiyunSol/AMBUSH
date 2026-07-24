@@ -12,7 +12,7 @@ It is intentionally disabled for automatic selection with expanded trigger chanc
 /ambush ambush:example_master
 ```
 
-This is a stress-test and API reference, not a balanced encounter. A full invocation may queue three Sable cannon balloons with 24 seated pillagers, schedule 18 CBC shells, produce several rain actions, and conditionally add ground, air, ocean, or storm groups. Use a disposable test world and face open, already-loaded terrain.
+This is a stress-test and exhaustive executable API reference, not a balanced encounter. It contains 32 actions spanning all 23 registered action names, including the Sable compatibility aliases. A full invocation may queue several Sable ships, fill seats, schedule CBC shells and mixed projectile waves, apply fog, play encounter audio, launch fireworks, and add land, air, water, weather, and inline reinforcement groups. Use a disposable test world and face open, already-loaded terrain.
 
 ## What the file demonstrates
 
@@ -21,15 +21,16 @@ This is a stress-test and API reference, not a balanced encounter. A full invoca
 - Expanded `trigger` object with `type`, `check_every_ticks`, `cooldown_ticks`, and object-form chance.
 - Named `cooldown_group`.
 - Expanded height/time conditions plus biome, dimension, and active-block arrays.
-- Expanded `wave` object with radius, bounded placement attempts, and groups.
+- Expanded `wave` object with radius, bounded placement attempts, random counts, equipment, effects, passengers, ownership, nearby-player targeting, separate aggro/de-aggro radii, friendly-fire control, and land placement.
 - Player effects and immediate registry sounds.
-- An empty base group list, allowing successful Sable queuing without a dummy mob.
+- Root encounter audio tied to a tagged main entity, plus action-scoped Sable encounter audio.
 
 Only one trigger type can control a definition. Alternatives for copied definitions are:
 
 - `interval`: normal periodic evaluation.
 - `portal`: additionally requires a Nether portal within three blocks.
 - `block_active`: requires a configured block within four blocks or a nearby block entity with positive `progress` NBT.
+- `structure`: supports explicit structure IDs, structure tags, and user-defined structure groups at the player's loaded position.
 - `kill`: uses `kill_entity` and `kill_count`; the counter persists in `ambush_state`.
 
 Compact top-level timing fields and expanded trigger fields are alternatives. Do not mix them unless you intentionally want the expanded fields to take precedence.
@@ -39,11 +40,14 @@ Compact top-level timing fields and expanded trigger fields are alternatives. Do
 The master formation demonstrates:
 
 - A shared `sable_formation` definition with three member overrides.
+- North-front schematic metadata, whole-template rotation, 32-block multiplayer participation, separate aggro/de-aggro radii, lifecycle music, and boss-destruction cowardice.
 - Named origins through `structure_key`.
 - Player-relative distance and `spawn_bearing_degrees`.
 - `player`, `orbit_clockwise`, and `orbit_counterclockwise` facing modes for a north-authored schematic.
 - Clear-air placement, bounded search, assembly retries, lifetime, 30% damage cleanup, and a safe data-defined explosion.
 - Fixed initial child sublevels, restart-safe cleanup, envelope fill, portable-engine burn time, and Y-selected throttle signal.
+- Timed split-fragment cleanup, combined block/entity boss health, bounded health scans, nearby boss-bar viewers, threshold sounds/particles, spawn/range/time/player-Y/death events, cowardice, and lifecycle audio.
+- Superheated engines, stress caps, engine/propeller direction maps, continuous steering, chase hysteresis, crew-gated throttle, hardware requirements, and analog/lever/button activations.
 - Stronghold loot on barrel child sublevels with explicit seed and replacement policy.
 - Object-form entity NBT, local coordinates, seating, persistence, owner targeting, custom tags, and plot-aware crossbow controls.
 
@@ -56,9 +60,12 @@ Orbit facing supplies only an initial tangent. It does not create centripetal st
 - `directional_cbc_shell_rain`: all three named structures, burst timing, HE block/item, timed fuze, velocity, inaccuracy, elevated/forward source, lateral spread, target spread, safe radius, and target height.
 - `directional_arrow_rain`: a named structure source with day, height, dimension, delay, spread, and velocity controls.
 - `directional_entity_rain`: generic registry entity from another named source, gated to night.
+- `directional_potion_rain`: a data-defined splash/lingering potion from a moving source.
+- `directional_entity_wave`: restart-safe mixed vanilla, spectral, tipped/custom arrow, potion, and generic-entity bursts.
 - `conditional_spawn`: delayed land groups, front cone, minimum/maximum radius, bounded attempts, random count, visibility rejection, persistence, owner target, wall aggro, equipment, crossbow range, effects, and tags.
 - Conditional air passengers, recursive passengers, water placement in the player's forward view, ocean checks, and storm-only mobs.
 - Delayed `sound` action with location, volume, and pitch.
+- Timed fog with color, shape, fluid override, fade-in/fade-out, fireworks, and a private `inline_ambush` reinforcement definition.
 
 These actions use `AmbushScheduleState` and retain their due time, dimension, owner, action JSON, and resolved structure origin across world/server restarts. If the owner is offline or in another dimension when an action becomes due, it waits.
 
@@ -66,7 +73,7 @@ Action conditions can use `time` (`day` or `night`), `weather` (`clear`, `rain`,
 
 ### Immediate and legacy actions
 
-The master also includes one of each older action form:
+The master includes every currently registered top-level action type. Older/immediate forms include:
 
 - `entity_wave`
 - `arrow_rain`
@@ -86,7 +93,7 @@ The final three static-world actions are intentionally gated behind the impossib
 - `structure` runs vanilla `place template`; it does not create a Sable craft or automatic cleanup.
 - Despite its historical name, `sable_substructure` is static template placement plus a pillager and is not physics assembly. Use `sable_structure` or `sable_formation` for production aircraft.
 
-A direct `sable_structure` action is also gated behind that documentation dimension because the active formation already exercises the same assembly queue and lifecycle with three members. `sable_sublevel` and `sable_sublevel_direct` are accepted compatibility aliases for `sable_structure`; prefer the explicit production name in new data.
+The master also contains direct `sable_structure`, `sable_sublevel`, and `sable_sublevel_direct` actions. The latter two are compatibility aliases; prefer `sable_structure` in new data. Administrative command execution intentionally forces Sable action conditions, so invoking the master can queue these documentation branches as well. This is another reason to use a disposable test world.
 
 ## Spawn-group notes and alternatives
 
@@ -120,7 +127,7 @@ A direct `sable_structure` action is also gated behind that documentation dimens
 - Use `despawn_effect: "none"` for silent removal or tune explosion power, fire, and block damage explicitly.
 - Put mutually exclusive trigger/condition variants in separate definitions sharing one cooldown group to create a family of encounters without simultaneous activation.
 
-The runtime does not provide automatic orbital steering, arbitrary particle-script execution, claims integration, chunk generation, or a general quest system. Those require a dedicated compatibility layer rather than additional JSON fields.
+The runtime does not provide automatic orbital steering, arbitrary server scripting, claims integration, chunk generation, or a general quest system. Registered vanilla or modded particle definitions are supported as Sable lifecycle actions; arbitrary script execution is intentionally not.
 
 ## Verification
 
