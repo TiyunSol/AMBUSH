@@ -1,0 +1,308 @@
+# Making Your Own Ambush Datapack
+
+Ambush encounters are plain JSON files. You do not need to build the mod, write
+code, or restart the server to add one — drop a file in a datapack, run
+`/reload`, and it is live.
+
+This guide covers the **easy format**, which is what you want for almost
+everything. The [advanced format](#advanced-format) at the end is only needed
+for airships and other Sable-assembled structures.
+
+---
+
+## 1. Where files go
+
+```text
+<world>/datapacks/<your-pack>/data/<namespace>/ambushes/<id>.json
+```
+
+A minimal datapack is two things — a `pack.mcmeta` and your ambush folder:
+
+```text
+my-ambushes/
+├── pack.mcmeta
+└── data/
+    └── myambushes/
+        └── ambushes/
+            └── midnight_horde.json
+```
+
+`pack.mcmeta`:
+
+```json
+{
+  "pack": {
+    "pack_format": 48,
+    "description": "My Ambush encounters"
+  }
+}
+```
+
+The definition is then referred to as `myambushes:midnight_horde` — namespace
+folder, then file name without `.json`.
+
+> **Validation is strict and deliberate.** Unknown fields, unknown action types
+> and out-of-range values are **rejected at `/reload`** with an error naming the
+> file, rather than being silently ignored. If a definition does not show up in
+> `/ambush list`, check the server log — the reason will be there.
+
+---
+
+## 2. Your first encounter
+
+```json
+{
+  "format": "easy",
+  "name": "Midnight Horde",
+  "description": "A broad zombie horde surrounds travelers after dark.",
+  "preset": "night",
+  "chance": 0.9,
+  "cooldown_seconds": 600,
+  "distance": 34,
+  "conditions": {
+    "dimensions": ["minecraft:overworld"]
+  },
+  "mobs": [
+    { "mob": "minecraft:zombie", "amount": 9, "avoid_line_of_sight": true },
+    { "mob": "minecraft:husk",   "amount": 3, "avoid_line_of_sight": true }
+  ],
+  "sound": "minecraft:entity.zombie.ambient",
+  "weight": 100
+}
+```
+
+`"format": "easy"` is **required**. Without it the file is read as an advanced
+definition and will almost certainly fail validation.
+
+Test it immediately:
+
+```bash
+/ambush always
+```
+```bash
+/ambush myambushes:midnight_horde
+```
+
+---
+
+## 3. Presets
+
+`preset` sets sensible defaults for trigger, timing and placement. Pick the one
+closest to what you want, then override individual fields.
+
+| Preset | What it sets up |
+|---|---|
+| `ground` | Default. Spawns on solid ground near the player. |
+| `night` | Ground spawn, restricted to night time. |
+| `land` | Ground spawn without the time restriction. |
+| `water` | Spawns on/in water. |
+| `sky` | Spawns above the player. |
+| `air` | Airborne spawn. |
+| `village` | Triggers on being near a village. |
+| `outpost` | Triggers on being near a pillager outpost. |
+| `structure` | Triggers on being inside a structure (see `conditions.structures`). |
+| `portal` | Triggers near a nether portal. |
+
+---
+
+## 4. Core fields
+
+| Field | Type | Meaning |
+|---|---|---|
+| `format` | string | Must be `"easy"`. |
+| `name` | string | Display name. |
+| `description` | string | Free text for your own reference. |
+| `preset` | string | See above. Defaults to `ground`. |
+| `chance` | number | 0–1. Probability per check that it fires. |
+| `weight` | number | Relative likelihood when several are eligible at once. |
+| `cooldown_seconds` | number | Minimum gap between firings. |
+| `cooldown_group` | string | Definitions sharing a group share one cooldown. |
+| `distance` | number | How far from the player it spawns. |
+| `check_every_seconds` | number | How often eligibility is tested. |
+| `sound` | string | Sound event played on trigger. |
+| `trigger` | string | `interval`, `portal`, `block_active`, `structure`, `kill`. Usually inferred from `preset`. |
+
+### Conditions
+
+```json
+"conditions": {
+  "dimensions": ["minecraft:overworld"],
+  "height": { "min": 50, "max": 320 },
+  "time": "night",
+  "structures": ["minecraft:village_plains"]
+}
+```
+
+---
+
+## 5. Mobs
+
+```json
+"mobs": [
+  {
+    "mob": "minecraft:pillager",
+    "amount": 6,
+    "avoid_line_of_sight": true,
+    "persistent": true,
+    "target": "owner",
+    "friendly_fire": false,
+    "equipment": {
+      "mainhand": "minecraft:crossbow",
+      "head": "minecraft:iron_helmet"
+    }
+  }
+]
+```
+
+| Field | Meaning |
+|---|---|
+| `mob` | Entity id. |
+| `amount` | How many to spawn. |
+| `avoid_line_of_sight` | Spawn only where the player cannot currently see the spot. Strongly recommended. |
+| `persistent` | Survives despawn rules. |
+| `target` | `owner` makes them hunt the triggering player. |
+| `friendly_fire` | Whether they can hurt each other. |
+| `equipment` | Slot → item id. |
+
+---
+
+## 6. Effects, waves and structures
+
+```json
+"effects": { "particles": "minecraft:soul", "banner": true },
+"wave": { "count": 3, "interval": 200 },
+"structures": [
+  { "structure": "myambushes:my_tower", "placement": "ground" }
+]
+```
+
+---
+
+## 7. Unlocks — gating encounters behind progress
+
+Encounters can stay hidden until the player has done something enough times.
+
+```json
+"unlock": {
+  "progress": { "event": "kill_entity", "entity": "minecraft:skeleton", "required": 50 },
+  "consume_on_success": false
+},
+"weight_scaling": { "per_progress": 0.5, "max": 40 }
+```
+
+With `consume_on_success: false` the unlock is permanent, and `weight` /
+`weight_scaling` control how often it then appears. Inspect progress live:
+
+```bash
+/ambush admin unlocks
+```
+
+---
+
+## 8. Commands
+
+| Command | What it does |
+|---|---|
+| `/ambush list` | All loaded definitions. |
+| `/ambush <id>` | Force-trigger one. |
+| `/ambush always` | Ignore chance/cooldown while testing. |
+| `/ambush clear` | Remove every active encounter, ship and placed structure. |
+| `/ambush admin check <id>` | Validate a definition, including hardware requirements. |
+| `/ambush admin debug` | Toggle verbose per-encounter logging. **Off by default** — turn it on before reporting a problem. |
+| `/ambush admin weights` | Effective weights and chances right now. |
+| `/ambush admin unlocks` | Unlock progress for the current player. |
+| `/ambush admin unlockall` | Unlock everything (testing). |
+| `/ambush admin spawning` | Toggle natural spawning on/off. |
+
+---
+
+## 9. Troubleshooting
+
+**It never appears in `/ambush list`.** It failed validation. The server log
+names the file and the offending field.
+
+**It appears but never fires.** Test with `/ambush always` first to separate
+"never eligible" from "unlucky". Then check `conditions`, and
+`/ambush admin weights` for its live chance.
+
+**Mobs spawn inside walls or on top of the player.** Set
+`avoid_line_of_sight: true` and raise `distance`.
+
+**Nothing at all is logged.** Per-encounter logging is off by default. Run
+`/ambush admin debug`, reproduce, then read the log.
+
+---
+
+## Advanced format
+
+Everything above compiles down to the advanced format, which you can also write
+directly. Omit `"format": "easy"` and supply `trigger` and `actions` yourself:
+
+```json
+{
+  "trigger": { "type": "interval", "check_every_ticks": 400 },
+  "weight": 20,
+  "cooldown_group": "my_group",
+  "conditions": { "dimensions": ["minecraft:overworld"] },
+  "actions": [
+    {
+      "type": "entity_wave",
+      "entity": "minecraft:pillager",
+      "count": 5,
+      "distance": 40,
+      "avoid_line_of_sight": true
+    }
+  ]
+}
+```
+
+### Action types
+
+`raid`, `inline_ambush`, `entity_wave`, `conditional_spawn`, `micro_structure`,
+`structure`, `block_platform`, `sound`, `fog`, `fireworks`, `particle`,
+`arrow_rain`, `potion_rain`, `entity_rain`, `cbc_shell_rain`,
+`directional_arrow_rain`, `directional_potion_rain`, `directional_entity_rain`,
+`directional_entity_wave`, `directional_cbc_shell_rain`.
+
+With Sable installed, `sable_structure` and `sable_formation` additionally allow
+fully piloted airships. Those are documented separately in
+[`SHIP_AUTHORING.md`](SHIP_AUTHORING.md).
+
+### Temporary structures
+
+`micro_structure` places blocks from an inline list, records exactly what it
+replaced, restores them after `lifetime_seconds`, and is removable with
+`/ambush clear`. Prefer it over `structure` for anything temporary —
+`structure` places a saved template and is **not** tracked for cleanup.
+
+```json
+{
+  "type": "micro_structure",
+  "min_radius": 24,
+  "radius": 56,
+  "attempts": 64,
+  "avoid_line_of_sight": true,
+  "replace_mode": "replaceable",
+  "lifetime_seconds": 300,
+  "blocks": [
+    { "block": "minecraft:sculk", "offset": [0, 0, 0], "replace": "surface" },
+    { "block": "minecraft:sculk", "offset": [0, 1, 0], "replace": "air" }
+  ],
+  "entities": [
+    { "entity": "minecraft:warden", "count": 1, "persistent": true }
+  ]
+}
+```
+
+`replace: "surface"` lets a block replace real terrain — use it for anything at
+or below ground level so the structure sits *in* the world rather than floating
+on it. `replace: "air"` only fills empty space.
+
+---
+
+## Compatibility
+
+Create, Create Aeronautics/Simulated, Sable and Create Big Cannons are all
+**optional**. Plain entity, sound, effect and structure encounters work with
+none of them installed. Definitions that need a missing mod are hidden at load
+rather than erroring — `/ambush admin check` reports which and why.
