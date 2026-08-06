@@ -34,3 +34,16 @@ Supported metadata range: 5.11.7 up to, but not including, 6. This enables valid
 - Generic encounters continue working with every optional integration absent.
 
 Datapack authors should reference only registry content available in their selected mod set.
+# AMBUSH 1.1.0 optional ship stack
+
+Ship actions require the following tested API line:
+
+- Minecraft 1.21.1
+- NeoForge 21.1.228 or compatible 21.1 release
+- Create 6.0.10
+- Sable 2.0.3
+- Create Simulated / Create Aeronautics 1.3.0
+- Sable Companion 1.6.0 (normally provided by the installed Sable stack)
+
+Generic AMBUSH encounters remain usable when the optional ship stack is absent.
+See `CLEAN_ROOM_PROVENANCE.md` for exact public sources and revisions.
