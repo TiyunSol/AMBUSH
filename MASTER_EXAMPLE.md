@@ -1,18 +1,19 @@
-# Ambush master example
+# Ambush master example (1.1.0)
 
 The executable reference definition is:
 
 ```text
-data/ambush/ambushes/example_master.json
+data/your_pack/ambushes/master_template.json
 ```
 
 It is intentionally disabled for automatic selection with expanded trigger chance `0.0`. The descriptive `documentation_only` field is ignored by the runtime; chance zero is the actual automatic-spawn safeguard. Operators can invoke it explicitly with:
 
 ```text
-/ambush ambush:example_master
+/ambush always
+/ambush your_pack:master_template
 ```
 
-This is a stress-test and exhaustive executable API reference, not a balanced encounter. It contains 32 actions spanning all 23 registered action names, including the Sable compatibility aliases. A full invocation may queue several Sable ships, fill seats, schedule CBC shells and mixed projectile waves, apply fog, play encounter audio, launch fireworks, and add land, air, water, weather, and inline reinforcement groups. Use a disposable test world and face open, already-loaded terrain.
+This is a stress-test and executable current-schema reference, not a balanced encounter. It demonstrates current action names only. A full invocation may queue several Sable ships, fill seats, schedule CBC shells and mixed projectile waves, apply fog, play encounter audio, launch fireworks, and add land, air, water, weather, and inline reinforcement groups. Use a disposable test world and face open, already-loaded terrain.
 
 ## What the file demonstrates
 
@@ -33,7 +34,7 @@ Only one trigger type can control a definition. Alternatives for copied definiti
 - `structure`: supports explicit structure IDs, structure tags, and user-defined structure groups at the player's loaded position.
 - `kill`: uses `kill_entity` and `kill_count`; the counter persists in `ambush_state`.
 
-Compact top-level timing fields and expanded trigger fields are alternatives. Do not mix them unless you intentionally want the expanded fields to take precedence.
+Advanced definitions must use the expanded `trigger` object. Easy definitions must explicitly use `"format": "easy"` and are compiled into that current schema.
 
 ### Sable formation
 
@@ -71,29 +72,26 @@ These actions use `AmbushScheduleState` and retain their due time, dimension, ow
 
 Action conditions can use `time` (`day` or `night`), `weather` (`clear`, `rain`, or `stormy`), `over_ocean`, `min_y`, `max_y`, and `dimensions`. Opposite time/weather alternatives cannot execute in the same world state, but the master contains separate branches so each syntax is represented.
 
-### Immediate and legacy actions
+### Immediate actions
 
-The master includes every currently registered top-level action type. Older/immediate forms include:
+Immediate forms include:
 
 - `entity_wave`
 - `arrow_rain`
 - `entity_rain`
-- `shell_rain`
 - `potion_rain`
 - `cbc_shell_rain`
 - `block_platform`
 - `structure`
-- `sable_substructure`
 
-`entity_wave` is now dispatched correctly, but it and old `cbc_shell_rain` use the in-memory legacy scheduler and do not survive a restart. Immediate rain actions also do not persist because they execute at encounter start.
+`entity_wave` and `cbc_shell_rain` use the immediate in-memory scheduler and do not survive a restart. Immediate rain actions also do not persist because they execute at encounter start.
 
 The final three static-world actions are intentionally gated behind the impossible dimension `ambush:documentation_only`. Their syntax remains visible without leaving permanent blocks during a normal master test. Remove those action-level conditions only when specifically testing them:
 
 - `block_platform` fills ordinary world blocks and has no structure lifecycle.
 - `structure` runs vanilla `place template`; it does not create a Sable craft or automatic cleanup.
-- Despite its historical name, `sable_substructure` is static template placement plus a pillager and is not physics assembly. Use `sable_structure` or `sable_formation` for production aircraft.
 
-The master also contains direct `sable_structure`, `sable_sublevel`, and `sable_sublevel_direct` actions. The latter two are compatibility aliases; prefer `sable_structure` in new data. Administrative command execution intentionally forces Sable action conditions, so invoking the master can queue these documentation branches as well. This is another reason to use a disposable test world.
+The ship actions are `sable_structure` and `sable_formation`. Administrative command execution intentionally forces Sable action conditions, so invoking the master can queue documentation branches as well. This is another reason to use a disposable test world.
 
 ## Spawn-group notes and alternatives
 
@@ -131,9 +129,26 @@ The runtime does not provide automatic orbital steering, arbitrary server script
 
 ## Verification
 
-1. Run `/ambush validate`; the master should count as one valid definition.
-2. Run `/ambush ambush:example_master` in a disposable Overworld test area.
+1. Run `/ambush admin check`; the master should count as one valid definition.
+2. Install the completed definition, enable `/ambush always`, and run `/ambush your_pack:master_template` in a disposable Overworld test area.
 3. Check `latest.log` for three keyed Sable queue entries and persisted-action result counts.
 4. Test day, night, ocean, and thunder separately to exercise mutually exclusive conditional branches.
 5. Restart before a delayed modern action or structure cleanup to verify persistence.
 6. Do not enable a nonzero automatic chance until the master has been copied and reduced to the intended production behavior.
+
+---
+
+## 1.1.0 notes
+
+- `envelope_fill` is a one-shot spawn initialiser only. Height is controlled by
+  `altitude_controller`, not by fill.
+- A `sable_formation` parent must **not** define `structure_key`; each member
+  supplies its own. A shared key builds every member into one merged hull.
+- On `redstone_activations`, `component` names are always plural (`buttons`,
+  `levers`, `cannon_mounts`), and an explicitly set `range` is always enforced.
+- Prefer `micro_structure` over `structure` for anything temporary — only
+  `micro_structure` is tracked for timed cleanup and `/ambush clear`.
+- Per-encounter logging is off by default; enable it with `/ambush admin debug`.
+
+See [`DATAPACK_GUIDE.md`](DATAPACK_GUIDE.md) and
+[`SHIP_AUTHORING.md`](SHIP_AUTHORING.md).
