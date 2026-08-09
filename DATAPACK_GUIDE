@@ -1,8 +1,22 @@
-# Making Your Own Ambush Datapack
+# AMBUSH Datapack Guide
 
-AMBUSH encounters are JSON files loaded from server datapacks. For an external datapack, you do not need to rebuild the mod: add or change the JSON file, run `/reload`, then check `/ambush validate`.
+Ambush is a server-authoritative NeoForge 1.21.1 mod for data-driven hostile encounters. Definitions are loaded from every active server datapack at:
 
-This guide covers ordinary entity encounters, advanced actions, Sable airships, and Create Big Cannons reloads. Start with a small entity encounter, then use the airship sections only after the basic definition validates and runs correctly.
+```text
+data/<namespace>/ambushes/<id>.json
+```
+
+Definitions are validated during reload. Invalid trigger names, malformed values, unsupported action modes, unsafe limits, and missing required resources are rejected with a useful server-log error rather than being silently ignored.
+
+Create, Create Aeronautics/Simulated, Sable, and Create Big Cannons are optional integrations. Generic entity, sound, effect, and vanilla projectile encounters work without them. Sable actions fail closed when their required runtime is unavailable.
+
+This document covers compact and expanded definitions, ordinary encounters, Sable airships, and Create Big Cannons reloads. Start with a small entity encounter, then use the airship sections only after the basic definition validates and runs correctly.
+
+## Installation and reloads
+
+Install Ambush on the server and connecting clients when using its client-synchronised features such as fog. External datapack JSON changes require `/reload`; adding, replacing, or changing bundled AMBUSH resources requires a full game or server restart.
+
+Use `/ambush validate` after every reload, and test a named definition with `/ambush always <namespace:id>`.
 
 ---
 
@@ -569,13 +583,13 @@ quick-firing breech.
 | `propellant_stack_snbt` | Filled Big Cartridge stack in SNBT form. |
 
 AMBUSH uses CBC's public cannon-loading API and does not write cannon NBT.
-Powder charges are intentionally unsupported (will be supported in the future). A missing, occupied, damaged,
+Powder charges are intentionally unsupported. A missing, occupied, damaged,
 unsupported, or crewless cannon fails closed and is never overwritten.
 
 Use a button `redstone_activation` only when the imported schematic already
 contains a button connected to the cannon controls. AMBUSH can operate and
 validate existing hardware; it cannot create missing cannon, engine, steering,
-or propulsion hardware. It is recommended to use the button method to fire.
+or propulsion hardware.
 
 ---
 
