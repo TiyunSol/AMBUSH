@@ -17,7 +17,7 @@ Create, Create Aeronautics/Simulated, Sable, and Create Big Cannons are optional
 
 ## Installation
 
-Install `ambush-1.1.0.jar` on the server and connecting clients. It is intended to be distributed with a normal CurseForge modpack. Definitions may be bundled inside the mod or supplied by a separate datapack. Put a datapack in a world’s `datapacks` directory, run `/reload`, and the definitions become available without rebuilding the mod.
+Install `ambush-1.1.1.jar` on the server and connecting clients. It is intended to be distributed with a normal CurseForge modpack. Definitions may be bundled inside the mod or supplied by a separate datapack. Put a datapack in a world’s `datapacks` directory, run `/reload`, and the definitions become available without rebuilding the mod.
 
 The mod does not edit other mods’ files or require a scripting platform. Ordinary encounters remain loaded-chunk-only; Sable ship assembly synchronously loads only the bounded destination and internal plot chunks required for that ship.
 
