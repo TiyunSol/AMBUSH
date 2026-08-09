@@ -46,4 +46,4 @@ Ship actions require the following tested API line:
 - Sable Companion 1.6.0 (normally provided by the installed Sable stack)
 
 Generic AMBUSH encounters remain usable when the optional ship stack is absent.
-See `CLEAN_ROOM_PROVENANCE.md` for exact public sources and revisions.
+
