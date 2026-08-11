@@ -1,3 +1,45 @@
+# Ambush 1.1.2
+
+## Pillager Potato Car and authoring tools
+
+- Added the rare plains-spawning Pillager Potato Car as a data-driven
+  `sable_car` encounter with broadside and front potato-cannon banks.
+- Added individual five-slot potato-cannon hopper tables plus a weighted mixed
+  hopper table; the car's side hoppers use baked potatoes and its front hopper
+  uses the mixed table.
+- Added data-driven paired redstone receiver positions, allowing each visible
+  button press to power its matching moving-assembly machine directly.
+- Side potato-cannon buttons hold for 20 ticks and fire one at a time with a
+  10-tick gap between presses; cannons receive their paired power pulse.
+- Car controls support broadside orbit behavior, stationary-target braking in
+  the configured firing band, out-of-range chase fallback, and a separate
+  data-driven `ship_ai.mode: "chase"` mode for future vehicles.
+- Ground cars honor `offset_y` during surface placement; the Potato Car spawns
+  two blocks above terrain.
+- `/ambush clear` now snapshots owned entities before discarding them so a
+  single invocation does not skip entities while iterating the live collection.
+- Added `/ambush admin inspect` for permission-level-2 vessel authoring: it
+  reports the nearest active AMBUSH vessel's action/template, local origin,
+  controls, hardware buckets, real block IDs, and schematic-local positions.
+
+## Sable compatibility fix
+
+- Stopped globally retaining vanilla pillagers, vindicators, evokers, and
+  villagers inside Sable shipyard plots. Spawn-egg illagers and mobs seated on
+  player-built sublevels now stay in world coordinates, so TaCZ hit detection,
+  knockback, dismounts, and Aeronautics physics use the correct frame.
+- AMBUSH's own registered airship crew remains retained through a targeted
+  runtime hook, preserving its ship-only AI and aiming adapters without
+  affecting unrelated mobs.
+
+## Surface vessels
+
+- Added data-driven `sable_boat` actions: water-only placement, normal
+  horizontal ship AI, and a locked waterline with no vertical lift control.
+- Bundled disabled pillager examples and their exact test-instance templates:
+  a forward-autocannon motorboat and a twin-broadside cannon boat.
+
+
 # Ambush 1.1.1
 
 ## Summary
