@@ -34,7 +34,7 @@ Supported metadata range: 5.11.7 up to, but not including, 6. This enables valid
 - Generic encounters continue working with every optional integration absent.
 
 Datapack authors should reference only registry content available in their selected mod set.
-# AMBUSH 1.1.0 optional ship stack
+# AMBUSH 1.1.2 optional ship stack
 
 Ship actions require the following tested API line:
 
