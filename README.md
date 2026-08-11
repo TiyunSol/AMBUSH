@@ -17,7 +17,7 @@ Create, Create Aeronautics/Simulated, Sable, and Create Big Cannons are optional
 
 ## Installation
 
-Install `ambush-1.1.1.jar` on the server and connecting clients. It is intended to be distributed with a normal CurseForge modpack. Definitions may be bundled inside the mod or supplied by a separate datapack. Put a datapack in a world’s `datapacks` directory, run `/reload`, and the definitions become available without rebuilding the mod.
+Install `ambush-1.1.2.jar` on the server and connecting clients. It is intended to be distributed with a normal CurseForge modpack. Definitions may be bundled inside the mod or supplied by a separate datapack. Put a datapack in a world’s `datapacks` directory, run `/reload`, and the definitions become available without rebuilding the mod.
 
 The mod does not edit other mods’ files or require a scripting platform. Ordinary encounters remain loaded-chunk-only; Sable ship assembly synchronously loads only the bounded destination and internal plot chunks required for that ship.
 
@@ -27,13 +27,6 @@ The mod does not edit other mods’ files or require a scripting platform. Ordin
 datapack layout, a complete working encounter, presets, mobs, unlocks, the
 commands, and troubleshooting. No Java, no rebuilding — write a JSON file, run
 `/reload`, and it is live.
-
-For airships and other Sable-assembled moving structures, see
-[`SHIP_AUTHORING.md`](SHIP_AUTHORING.md).
-
-For the complete field-by-field schema, see
-[`FULL_DOCUMENTATION.md`](FULL_DOCUMENTATION.md) and
-[`MASTER_EXAMPLE.md`](MASTER_EXAMPLE.md).
 
 You can also copy the `ambush_easy_template` folder out of the jar and edit
 `my_first_ambush.json` as a starting point.
@@ -57,6 +50,7 @@ the admin tools require permission level 2.
 /ambush admin debug
 /ambush admin weights
 /ambush admin unlocks
+/ambush admin inspect
 ```
 
 `/ambush always` toggles persistent always mode for the executing player.
@@ -68,6 +62,34 @@ conditions. `always` has no encounter argument: toggle it on, then run
 definitions. Adding an ID runs the detailed read-only preflight. `/ambush
 clear` cancels persisted actions and removes active AMBUSH-owned mobs, ships,
 boss bars, tracked audio, and fog while preserving chance and cooldown history.
+
+`/ambush admin inspect` reports the nearest active AMBUSH vessel’s template,
+local origin, configured controls, detected hardware categories, block IDs, and
+schematic-local positions. It is intended for creating or troubleshooting
+data-driven ship, boat, and car definitions.
+## Vehicles and potato cannons
+
+Ambush supports data-driven ground vehicles through `sable_car`. Cars use a
+surface-placement adapter and explicit `car_controls` positions for steering,
+clutch, reverse, and throttle hardware.
+
+Car AI supports:
+
+- `broadside`: circles at the configured distance while keeping a selected side
+  aimed toward its target, with automatic chase outside `target_range`.
+- `chase`: direct pursuit using `chase_controller`.
+- Optional stationary-target braking through
+  `broadside_brake_min_range`, `broadside_brake_range`, and
+  `target_still_speed`.
+
+Redstone-driven machines can use `power_positions` alongside visible button
+`positions`. For sequenced activations, entries are paired by index, allowing
+each button press to power its matching receiver even when moving-assembly
+redstone wiring is not directly adjacent.
+
+The bundled Pillager Potato Car demonstrates broadside and forward mounted
+potato cannons, staggered side firing, hopper-loaded ammunition, and
+data-driven ground-vehicle controls.
 
 ## Runtime safety and transactional fleets
 
@@ -888,7 +910,7 @@ The `fog` action changes vanilla fog only for the targeted player. New fog repla
 
 Fog actions support ordinary action `conditions`, `after_ticks`, and persisted scheduling. Fog-only ambushes are valid: accepted actions now count as encounter success for cooldown, chance reset, and command confirmation. The server and client must both run this Ambush build because fog uses an Ambush network payload. Shader mods may reinterpret vanilla fog, so test the target shader stack separately. The bundled fog examples exercise timed fog independently of optional boss structures.
 
-## Sol III boss example
+## boss example
 
 
 The boss applies fog before assembly so the reveal is not delayed by Sable assembly. Its horn uses `audible_distance: 8`, placing the sound eight blocks from the player along the live direction toward the ship. `fireworks` is a lifecycle or ordinary action with `count`, `height`, `spread`, `flight` (1-3), `shape`, `colors`, and `fade_colors`; the boss emits twelve large, twinkling purple-and-gold rockets when destroyed.
