@@ -505,9 +505,13 @@ craft.
 
 ## 12. Airship crew, controls, and cannon buttons
 
-Crew is declared in the airship action's `entities` list. `local` coordinates
-are measured from the template's minimum corner. Use `seat: true` only when the
-template has compatible Create seats at the requested positions.
+Crew is declared in the vessel action's `entities` list. `local` coordinates
+are measured from the template's minimum corner. Crew placement is entirely
+datapack-owned: use `seat_predicate` / `seat_predicates` to select exact block
+IDs (including any Create seat color), or use `spawn_on_blocks` for a carpet or
+other deck block. There are no mob-type seat defaults. With `seat: true` and no
+selector, the mob uses every detected seat; use a selector whenever different
+mobs need different positions.
 
 `redstone_activations` operates controls after the airship has assembled. Each
 activation is tracked in the persistent airship encounter state.
@@ -596,20 +600,39 @@ or propulsion hardware.
 
 ## 14. Current vessel, hardware, and formation authoring
 
-This section documents the current 1.1.2 vessel features. It supersedes older examples that omit `sable_car`, `power_positions`, or `/ambush admin inspect`. All local coordinates use `[x, y, z]` from the saved schematic's minimum corner. Set `assembly_origin` to the schematic-local block that must become the assembled vessel origin.
+This section documents the current 1.1.3 vessel features. It supersedes older examples that omit `sable_car`, `power_positions`, or `/ambush admin inspect`. All local coordinates use `[x, y, z]` from the saved schematic's minimum corner. Set `assembly_origin` to the schematic-local block that must become the assembled vessel origin.
 
 ### Vessel action types
 
 | Type | Required placement | Required controls | Intended use |
 |---|---|---|---|
 | `sable_structure` | Usually `air`; other supported placement modes are allowed when suitable. | Depends on the schematic and configured AI. | Airships and general assembled structures. |
-| `sable_boat` | `water` | `ship_ai` | Waterline-locked boats. `altitude_controller` and `envelope_fill` are not valid. |
+| `sable_boat` | `water` | `ship_ai` | Boats placed on eligible water with no AMBUSH physics intervention. `altitude_controller` and `envelope_fill` are not valid. |
 | `sable_car` | `surface` | `ship_ai` and `car_controls` | Ground vehicles. `altitude_controller` and `envelope_fill` are not valid. |
 | `sable_formation` | Inherited or supplied per member. | Per-member. | A coordinated set of vessel members. |
 
 Every vessel action needs a namespaced `template`. Vessel templates are stored at `data/<namespace>/structure/<path>.nbt`; a template ID such as `myambushes:vehicles/scout` resolves to `data/myambushes/structure/vehicles/scout.nbt`.
 
-`sable_formation` has a `members` array. Members inherit compatible parent fields and override only what differs. Keep every member's placement, template, and hardware independently valid.
+`sable_formation` has a `members` array. Members inherit compatible parent fields and override only what differs. A member may explicitly be `sable_structure`, `sable_boat`, or `sable_car`, so one fleet can mix airships with boats or cars. Keep every member's placement, template, and hardware independently valid.
+
+### Ocean-boat placement
+
+`sable_boat` resolves the exposed water surface at each candidate anchor and
+counts consecutive water blocks downward. `minimum_water_depth` rejects shallow
+water. After assembly AMBUSH never changes the boat's position or velocity;
+Sable/Aeronautics alone handle all motion and buoyancy.
+
+```json
+{
+  "type": "sable_boat",
+  "placement": "water",
+  "minimum_water_depth": 8,
+  "ship_ai": {"mode": "chase", "distance": 16, "correction_range": 16, "target_range": 128}
+}
+```
+
+Both values are optional: the defaults are `minimum_water_depth: 2` and
+`water_spawn_height: 2`. Depth must be 1–256 blocks and spawn height 1–16.
 
 ### Ground-car definition
 
@@ -667,6 +690,13 @@ For the steering layout above, the local lever named `right_turn_lever` turns th
 
 `power_positions` is optional but important for controls whose mounted device must receive redstone power in addition to the visible button changing state. When both arrays are present, entry *n* in `positions` is paired with entry *n* in `power_positions`.
 
+Cannon behavior is datapack-defined. Use `cannon_assembly` to select the
+assembly controls, `initial_cannon_loads` / `cannon_reloads` for CBC loading,
+and `redstone_activations` for firing controls. AMBUSH does not infer a cannon
+battery from a mob or seat choice. `power_mounts_directly` defaults to `false`;
+set it to `true` only for a schematic whose CBC mount needs the explicit
+compatibility pulse instead of its authored redstone wiring.
+
 ```json
 {
   "component": "button",
@@ -687,11 +717,32 @@ For the steering layout above, the local lever named `right_turn_lever` turns th
 
 `player_direction` may limit a battery to `left`, `right`, or `front`, as measured from the vessel. Use `horizontal_only` with `vertical_tolerance` for short-range hardware that should engage targets near its firing height. Match every listed control and receiver to real blocks in the schematic; AMBUSH does not add missing redstone or cannon hardware.
 
+For a per-cannon arc gate, add `cannon_alignment` to that cannon's own firing activation. It compares the current target against a full 3-D vector in template-local coordinates, starting at that cannon's `mount_local`; no hull-wide broadside approximation is used. The activation fires only while the target lies inside `arc_degrees` of `aim_local`.
+
+```json
+{
+  "component": "buttons",
+  "positions": [[4, 2, 10]],
+  "power_positions": [[5, 2, 10]],
+  "state": "button",
+  "button_ticks": 8,
+  "range": 96,
+  "repeat_ticks": 30,
+  "cannon_alignment": {
+    "mount_local": [6, 2, 10],
+    "aim_local": [0, -1, -1],
+    "arc_degrees": 12
+  }
+}
+```
+
+`mount_local` is the real cannon/muzzle location in the template and `aim_local` is its real barrel direction (it need not be unit length). Use one activation per weapon when their arcs differ. The same feature applies to straight-firing autocannons: use their barrel origin and a narrow vector, for example `"aim_local": [0, 0, -1]` with `"arc_degrees": 3`. This gate is optional and has no effect on existing activations.
+
 ### Airship movement, crew, formations, and lifecycle
 
 For an airship, `envelope_fill` is a one-time initial balloon fill; it is not an altitude controller. Use `altitude_controller` for ongoing lift control, and keep its lever changes gradual enough for the craft's buoyancy to respond. Useful fields include `mode` (`player_offset` or `absolute`), `offset`, `tolerance`, `hover_signal`, `minimum_signal`, `maximum_signal`, `velocity_lookahead_ticks`, and terrain-clearance limits.
 
-`ship_ai` supports `chase`, `broadside`, `orbit`, `boarding`, `tnt_drop`, and `disabled`. Chase uses a `chase_controller`; a meaningful gap between its reverse and resume distances prevents repeated direction changes. `steering_controls` describes the steering hardware. If a craft turns consistently the wrong way, verify `schematic_front` first, then use the steering control's `invert` setting when appropriate.
+`ship_ai` supports `chase`, `broadside`, `orbit`, `boarding`, `tnt_drop`, `overhead`, `flyover`, and `disabled`. `overhead` and `flyover` are airship-only (`sable_structure`) modes and require an `altitude_controller`: `overhead` steers to the player’s X/Z position and holds there, while `flyover` steers through that position without the overhead stop. Author altitude with `ship_ai.match_player_y: false` and an `altitude_controller.offset` (or a player-Y band) to keep the hull above the target. To fire real mounted cannons down or diagonally down, physically aim the schematic’s mount that way and use a per-cannon `redstone_activations.cannon_alignment` vector with suitable range and real `positions`/`power_positions`; AMBUSH does not rotate cannon hardware. Chase uses a `chase_controller`; a meaningful gap between its reverse and resume distances prevents repeated direction changes. `steering_controls` describes the steering hardware. If a craft turns consistently the wrong way, verify `schematic_front` first, then use the steering control's `invert` setting when appropriate.
 
 Vessel `entities` are crew declarations. Use `local` or `local_x`, `local_y`, and `local_z` to place them relative to the template; use `seat: true` only with suitable seats in the schematic. `seat_predicates`, `equipment`, targeting fields, persistence, and friendly-fire settings allow the crew to match the vessel's intended role. Controls that require living crew stop operating once that configured crew is gone.
 
@@ -710,7 +761,7 @@ The `actions` array supports the following current action families:
 | Static placement | `structure`, `micro_structure`, `block_platform` |
 | Assembled vessels | `sable_structure`, `sable_boat`, `sable_car`, `sable_formation` |
 
-Use `conditional_spawn` for delayed, bounded spawning with an action-level `conditions` object. Directional wave actions support a direction and arc so they can be constrained to a desired approach. The rain actions use count, height, spread, timing, and target controls; directional shell rain can additionally use a named vessel source, source delay, velocity, fuze, gravity, and safe-target radius.
+Use `conditional_spawn` for delayed, bounded spawning with an action-level `conditions` object. Directional wave actions support a direction and arc so they can be constrained to a desired approach. The rain actions use count, height, spread, timing, and target controls; directional shell rain can additionally use a named vessel source, source delay, velocity, fuze, gravity, and safe-target radius. CBC shell rain now reports a zero-shell result as a failed scheduled action instead of silently succeeding; use `required: true` for an encounter that must not continue without its artillery.
 
 `micro_structure` is the data-defined alternative to an NBT template for small, temporary surface compositions. It uses bounded offsets, safe replacement rules, optional contained entities, and a lifetime that restores its original blocks. `structure` uses a normal registered structure template; `block_platform` is for bounded platform-style placement. Each should be tested separately before combining it with delayed waves or vessel actions.
 
@@ -757,6 +808,153 @@ The command selects the nearest active AMBUSH vessel and prints its action and t
 6. Run `/ambush clear` once to remove the complete AMBUSH-owned batch.
 
 The legacy master example is not used as a current executable template: its referenced resource is not shipped with the present source tree. The examples in this guide are therefore the supported starting point; validate every definition against the installed AMBUSH build before distributing it.
+
+---
+
+## 15. Current 1.1.3 additions and superseding rules
+
+This section is additive. Earlier material remains valid unless it conflicts
+with an item below; in that case this section is authoritative.
+
+### External-pack delivery
+
+External datapacks are the default deliverable. A complete pack contains
+`pack.mcmeta` plus every generated definition, structure template, and custom
+loot table beneath `data/<namespace>/`. Do not assume an encounter can refer to
+a custom template or loot table that is not included in its active pack.
+
+Bundling resources inside the AMBUSH jar remains supported when explicitly
+requested. External resource edits use `/reload`; changed bundled resources
+require a full game or server restart.
+
+### Boats, cars, and mixed formations
+
+- `sable_boat` requires `placement: "water"` and `ship_ai`. It may use the
+  normal crew, cannon, redstone, event, steering, propulsion, cleanup, and
+  container systems, but it cannot use `altitude_controller` or
+  `envelope_fill`.
+- `minimum_water_depth` is the number of continuous water blocks required below
+  the exposed water surface. Its default is `2`.
+- `water_spawn_height` controls the height above that exposed surface. Its
+  default is `2` blocks.
+- AMBUSH finds an eligible water surface and then leaves boat buoyancy and
+  vertical movement to Sable/Aeronautics. It does not impose a waterline lock.
+- `sable_car` requires `placement: "surface"`, `ship_ai`, and `car_controls`.
+  Cars cannot use balloon or altitude-controller fields.
+- A `sable_formation` member may explicitly be a `sable_structure`,
+  `sable_boat`, or `sable_car`; mixed fleets are valid. Each member needs its
+  own valid placement data and unique `structure_key`.
+
+### Explicit vessel controls
+
+Schematic state is preserved unless the action explicitly opts in to an AMBUSH
+control. This prevents runtime code from silently replacing values saved in a
+template.
+
+- `propeller_direction` changes propulsion direction only when present.
+- `bearing_never_place: true` changes mechanical-bearing placement mode only
+  when explicitly set.
+- `steering_controls` changes steering-wheel limits only when the array is
+  present. Use `max_angle` for the maximum requested turn angle and `invert`
+  when the real schematic orientation requires it.
+- `ship_ai.range_holding_thrust_reversal: true` enables range-holding reverse
+  thrust. Supply distinct `reverse_at_distance` and
+  `resume_forward_at_distance` values to provide hysteresis.
+- `ship_ai.recovery_turn_enabled: true` enables the full-lock recovery turn.
+- `clutch_when_aligned: true` or `clutch_when_above: true` enables AMBUSH
+  clutch control. Omit both to leave the schematic clutch untouched.
+- `engine_burn_ticks` or `engine_burn_seconds` sets portable-engine burn time;
+  `engine_superheated: true` sets its superheated state.
+
+Airship safety and altitude behavior should also be authored explicitly. Useful
+fields include `ground_clearance_enabled`, `minimum_ground_clearance`,
+`descent_arrest_enabled`, `descent_arrest_margin`, `velocity_lookahead_ticks`,
+`integral_gain`, `integral_limit`, and `max_signal_step`.
+
+### CBC assembly, loading, and firing
+
+`cannon_assembly` prepares the real assembly controls. Use
+`power_mounts_directly: true` only where the schematic needs a direct
+compatibility pulse. `cannon_assembly.force_mount_assembly: true` is an
+additional explicit recovery option for a mount saved powered but without a
+live contraption.
+
+Use `initial_cannon_load_after_ticks` to preload hand-loaded CBC guns after
+the vessel becomes operational. This happens independently of range and aim,
+so the guns can stand by while the vessel approaches. Use
+`cannon_reload_delay_ticks` for post-shot reload timing and
+`cannon_reloads` when the reload rules differ from the initial load.
+
+For independently aimed mounts, define one `redstone_activations` entry per
+cannon. Pair its real button with `cannon_alignment`, and add
+`fire_mount_local` when moving-hull wiring does not reliably deliver a CBC fire
+edge. AMBUSH then pulses both the visible button and the named CBC mount's
+native fire input at normal redstone strength. Never use one broad activation
+as a substitute for several differently aimed cannons.
+
+```json
+{
+  "positions": [[4, 2, 8]],
+  "state": "button",
+  "signal": 15,
+  "button_ticks": 10,
+  "repeat_ticks": 240,
+  "range": 96,
+  "require": "all",
+  "require_living_crew": true,
+  "fire_mount_local": [4, 2, 9],
+  "cannon_alignment": {
+    "mount_local": [4, 2, 9],
+    "aim_local": [-1, 0, 0],
+    "arc_degrees": 30
+  }
+}
+```
+
+For cannon diagnosis, inspect the server log. CBC-related AMBUSH diagnostics
+are INFO-level and report assembly, preload status, range/alignment skips,
+button pulses, direct mount activation, successful shots, and reloads.
+
+### Optional FTB Quests hooks
+
+FTB Quests is optional. AMBUSH loads without it; these fields and tags are
+ignored when FTB Quests is not installed.
+
+Tag an FTB quest with `ambush:trigger:<namespace:id>` to start that definition
+when the quest starts. By default, online team members are sources and targets.
+Optional target tags are `ambush:target:self`,
+`ambush:target:player:<name>`, `ambush:target:nearest_other`,
+`ambush:target:random_online`, and `ambush:target:all_other`.
+
+An encounter can complete tagged tasks at start, success, or failure:
+
+```json
+"ftb_quests": {
+  "on_start_task_tag": "ambush:pirates_started",
+  "on_success_task_tag": "ambush:pirates_defeated",
+  "on_failure_task_tag": "ambush:pirates_failed"
+}
+```
+
+`failure_events` tracks the ordinary mobs and Sable vessels created by an
+encounter. It succeeds when `minimum_kill_percent` is met before
+`timeout_ticks`; otherwise its actions run once. Supported failure actions
+include server commands and chained AMBUSH definitions.
+
+```json
+"failure_events": {
+  "timeout_ticks": 12000,
+  "minimum_kill_percent": 75,
+  "actions": [
+    { "type": "command", "command": "say {player} failed the convoy" },
+    { "type": "ambush", "ambush": "myambushes:reinforcements" }
+  ]
+}
+```
+
+The command runs as the server at permission level 2. `{player}` is replaced
+with the target player's name; chained ambushes still use AMBUSH's normal
+chain-safety checks.
 
 ---
 
