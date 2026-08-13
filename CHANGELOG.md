@@ -1,3 +1,26 @@
+## AMBUSH 1.1.3
+
+### New content
+
+- Added the Evoker Tiny Broadside Boat encounter, featuring an evoker captain, pillager crew, HE broadside cannons, a forward autocannon, and slowness-arrow attacks.
+- Added ocean-capable surface boat encounters.
+- Removed the deprecated Boat Autocannon and Pillager Autocannon encounters.
+
+### FTB Quests integration
+
+- Added optional FTB Quests support for tracking ambush outcomes.
+- Encounters can now award quest progress on success and support failure outcomes such as timeouts or insufficient enemy defeats.
+- Added optional follow-up actions for completed or failed encounters.
+
+### Improvements
+
+- Improved ship steering, propulsion, cannon assembly, cannon reloads, and firing reliability.
+- Improved per-cannon broadside firing behavior and HE impact-fuze support.
+- Improved ship crew behavior, targeting, and encounter cleanup.
+- Improved compatibility with Create, Create Big Cannons, Sable, Simulated, and Aeronautics.
+
+
+
 # Ambush 1.1.2
 
 ## Pillager Potato Car and authoring tools
