@@ -1,5 +1,6 @@
 # Ambush
 
+(TEMPORARY) - I am creating a modpack that will be an example for this mod. If you have ambush ideas, schematics, or suggestions please join the discord! https://discord.gg/BHEQthrSSD
 Ambush is a server-authoritative NeoForge 1.21.1 mod for configurable, per-player hostile encounters. Install it on the server and connecting clients because the full feature set includes client fog/audio payloads. Encounter definitions are data-driven JSON files loaded from every server datapack under:
 
 Definitions enter the runtime through a Mojang `Codec` boundary and recursive action validation. Unknown trigger/action modes and invalid bounded fields are rejected during datapack reload instead of being silently ignored.
