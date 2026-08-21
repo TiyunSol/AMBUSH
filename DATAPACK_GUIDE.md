@@ -16,7 +16,7 @@ This document is the complete, current authoring reference for compact and expan
 
 Install Ambush on the server and connecting clients when using its client-synchronised features such as fog. External datapack JSON changes require `/reload`; adding, replacing, or changing bundled AMBUSH resources requires a full game or server restart.
 
-Use `/ambush validate` after every reload, and test a named definition with `/ambush always <namespace:id>`.
+Use `/reload`, then `/ambush admin check` after every external datapack reload. Test a named definition by running `/ambush <namespace:id>` directly.
 
 ---
 
@@ -130,11 +130,13 @@ Then run:
 
 ```mcfunction
 /reload
-/ambush validate
-/ambush always myambushes:midnight_horde
+/ambush admin check
+/ambush myambushes:midnight_horde
 ```
 
-`/ambush always` is useful for testing because it bypasses the encounter’s chance and cooldown checks. It does not bypass conditions such as time, dimension, or required nearby blocks.
+Running a definition by name never rolls its `chance`, and it clears that definition's cooldown group. It does still require every condition to be satisfied: the trigger requirement, time range, Y range, biome, and dimension. If the run fails, the command prints the reason.
+
+To test outside those conditions, use always mode. `/ambush always` toggles always mode for the player who runs it; while it is ON, `/ambush <namespace:id>` skips the condition check entirely, so a definition can be started at the wrong time of day, in the wrong biome, or away from its required blocks. Run `/ambush always` a second time to turn it off before testing natural behavior.
 
 ---
 
@@ -145,6 +147,7 @@ Then run:
 | `trigger` | Encounter trigger. Use `interval` for ordinary periodic encounters. |
 | `interval` | How often AMBUSH checks this definition, in ticks. `20` ticks is about one second. |
 | `cooldown` | Delay after a successful encounter, in seconds. |
+| `cooldown_group` | Shared cooldown key. Definitions in the same group share one cooldown. Defaults to `default`. |
 | `chance` | Chance from `0` to `100` each time the definition is checked. |
 | `min_time` / `max_time` | Minecraft daytime range from `0` to `24000`. |
 | `dimensions` | Allowed dimension IDs. |
@@ -156,6 +159,8 @@ Then run:
 | `effects` | Effects applied after at least one entity successfully spawns. |
 | `sounds` | Sound event IDs played after at least one entity successfully spawns. |
 | `active_blocks` | Block IDs checked by the `block_active` trigger. |
+| `weight` | Relative selection weight when several definitions are eligible at once. |
+| `allow_peaceful` | Set to `true` to let the definition spawn on Peaceful difficulty. |
 
 A cooldown is consumed only if the encounter successfully creates at least one entity.
 
@@ -210,6 +215,47 @@ A cooldown is consumed only if the encounter successfully creates at least one e
   ]
 }
 ```
+
+### Structure
+
+`structure` requires the target to be standing on a piece of a listed structure. It matches only already-loaded structure pieces: it never performs a locate and never generates chunks.
+
+```json
+{
+  "trigger": "structure",
+  "interval": 200,
+  "cooldown": 1200,
+  "chance": 20,
+  "structures": [
+    "minecraft:pillager_outpost",
+    "#minecraft:village"
+  ],
+  "spawns": [
+    { "entity": "minecraft:pillager", "count": 4 }
+  ]
+}
+```
+
+Entries are structure IDs, or structure tags when prefixed with `#`. A definition with no resolvable selector never matches. For a reusable set of selectors, declare `structure_groups` as a named object and select from it with `structure_group` or `use_structure_groups`.
+
+### Kill
+
+`kill` runs after the target kills a qualifying entity. `kill_count` sets how many kills are required, from `1` to `10000`, and defaults to `1`. `kill_entity` restricts it to one entity ID; omit it to count any kill.
+
+```json
+{
+  "trigger": "kill",
+  "kill_entity": "minecraft:pillager",
+  "kill_count": 12,
+  "cooldown": 1800,
+  "chance": 100,
+  "spawns": [
+    { "entity": "minecraft:vindicator", "count": 3 }
+  ]
+}
+```
+
+`vanilla_raid_wave` is also accepted. It is driven by raid events rather than by the periodic check, so it does not run from a schedule and is not selected by `/ambush player`.
 
 Unknown trigger names fail validation.
 
@@ -324,21 +370,52 @@ Effects use `effect_id:duration_seconds:amplifier`.
 
 ## 8. Commands
 
-Commands require permission level 2.
+Most commands require permission level 2. `/ambush` and `/ambush list` are available to any player.
 
 | Command | Purpose |
 |---|---|
+| `/ambush` | Prints the command summary and the current always-mode state. |
 | `/ambush list` | Lists loaded definitions. |
-| `/ambush validate` | Reports the number of accepted definitions after reload. |
-| `/ambush <namespace:id>` | Runs one named encounter. |
-| `/ambush always <namespace:id>` | Runs one named encounter while bypassing chance and cooldown. |
-| `/ambush debug` | Toggles server-console diagnostics. |
-| `/ambush debug <namespace:id>` | Performs a read-only preflight for one definition. |
-| `/ambush state` | Reports loaded definitions, owned entities, and tracked cooldown entries. |
+| `/ambush <namespace:id>` | Runs one named encounter against the player who ran it. |
+| `/ambush <namespace:id> <player>` | Runs one named encounter against a named player, ignoring that encounter's conditions. |
+| `/ambush player <player>` | Runs a randomly selected eligible encounter against a named player. |
+| `/ambush player <player> <namespace:id>` | Runs one named encounter against a named player, using that player's always-mode setting. |
+| `/ambush always` | Toggles always mode for the player who runs it. Takes no encounter ID. |
 | `/ambush clear` | Cancels active AMBUSH work and removes AMBUSH-owned encounter content. |
-| `/ambush admin inspect` | Inspects the nearest active AMBUSH vessel and reports its local hardware coordinates, block IDs, controls, loot rules, and AI configuration. |
+| `/ambush enable [pack]` | Enables natural spawning for a datapack namespace. Blank defaults to `ambush`. |
+| `/ambush disable [pack]` | Disables natural spawning for a datapack namespace. Blank defaults to `ambush`. |
+| `/ambush admin check` | Reports how many definitions loaded, plus any hidden for missing mods and any rejected. |
+| `/ambush admin check <namespace:id>` | Read-only preflight for one definition and its requirements. |
+| `/ambush admin inspect` | Inspects the nearest active AMBUSH vessel and reports its local hardware coordinates, block IDs, controls, loot rules, and controller configuration. |
+| `/ambush admin debug` | Toggles server diagnostics. |
+| `/ambush admin weights` | Reports each definition's effective weight, base weight, current chance, and cooldown group. |
+| `/ambush admin unlocks` | Reports unlock progress for definitions that declare one. |
+| `/ambush admin unlockall` | Unlocks every unlockable definition for the player who runs it. |
+| `/ambush admin spawning` | Toggles server-wide natural spawning. |
+| `/ambush admin spawning status` | Reports the server-wide toggle and any individually disabled definitions. |
+| `/ambush admin spawning <namespace:id> [enable\|disable]` | Reads or changes one definition's natural-spawn toggle. |
 
-Use `/ambush debug <namespace:id>` before testing a complicated definition. It performs a read-only preflight and reports definition, template, placement, formation, hardware, lifecycle, and loot-rule issues without spawning encounter content.
+Use `/ambush admin check <namespace:id>` before testing a complicated definition. It performs a read-only preflight and reports definition, template, placement, formation, hardware, lifecycle, and loot-rule issues without spawning encounter content. Use `/ambush admin inspect` after spawning a vessel to verify its schematic-local hardware and controls.
+
+### Always mode
+
+Always mode is a per-player toggle, not an argument. `/ambush always` turns it on, and a second `/ambush always` turns it off. The command reports the new state, and `/ambush` on its own reports the current state.
+
+While always mode is ON, `/ambush <namespace:id>` skips the entire eligibility check for that player: trigger requirement, Y range, time range, biome, dimension, portal proximity, and required nearby blocks. This is the correct way to test a definition out of context. Turn it off again before judging whether the definition behaves correctly on its own.
+
+Always mode affects only manual runs. It does not change natural spawning.
+
+### Natural spawning
+
+`/ambush admin spawning` toggles natural spawning for the whole server. While it is disabled nothing spawns on its own, but running a definition by name still works. `/ambush admin spawning status` reports that toggle together with any definitions disabled individually, and `/ambush admin spawning <namespace:id>` reads or changes one definition's own toggle.
+
+`/ambush enable [pack]` and `/ambush disable [pack]` work on a whole datapack namespace at once. The argument is a namespace, such as `myambushes`; leaving it blank targets `ambush`, the bundled set.
+
+### Weights and unlocks
+
+When several definitions are eligible at the same moment, one is selected using each definition's `weight`. `/ambush admin weights` prints that weight, the base value it came from, the definition's current chance, and its `cooldown_group`, so competing definitions can be compared directly.
+
+A definition may also declare an `unlock` block with a `progress` object, which gates it behind tracked player progress. `/ambush admin unlocks` lists every definition that declares one, along with the event it tracks and the player's current progress toward it. `/ambush admin unlockall` marks them all unlocked for testing.
 
 ---
 
@@ -348,13 +425,16 @@ Use `/ambush debug <namespace:id>` before testing a complicated definition. It p
 Run `/reload`, then read the server log. The validation error identifies the rejected definition and reason.
 
 **The definition loads but does not run naturally.**  
-Use `/ambush always <namespace:id>` to bypass chance and cooldown. If it still does not run, check the trigger, time range, dimension, biome, and other conditions.
+Run `/ambush <namespace:id>` first; if it fails, the command reports why. Then turn on `/ambush always` and run it again. If it works only with always mode ON, the definition itself is valid and one of its conditions is not being met — check the trigger, time range, dimension, biome, and Y range. Turn always mode back off with a second `/ambush always` before testing natural behavior again.
+
+**The definition runs by name but never occurs on its own.**  
+Check that natural spawning is enabled with `/ambush admin spawning status`, and that its namespace has not been disabled with `/ambush disable`. Then check its `chance` and `weight` with `/ambush admin weights`, and its unlock state with `/ambush admin unlocks`.
 
 **Entities do not appear.**  
 Increase `attempts` carefully and use a larger `radius`. Placement is bounded and may fail when no valid location exists.
 
 **A large or complex definition behaves unexpectedly.**  
-Run `/ambush debug <namespace:id>`. It reports validation, required templates, placement settings, formation members, hardware requirements, lifecycle schedules, named wave sources, fill declarations, and loot rules without creating encounter content.
+Run `/ambush admin check <namespace:id>`. It reports validation, required templates, placement settings, formation members, hardware requirements, lifecycle schedules, named wave sources, fill declarations, and loot rules without creating encounter content.
 
 ---
 
@@ -391,6 +471,8 @@ The expanded format is intended for reusable datapacks and advanced behavior.
 }
 ```
 
+The `chance` object takes `base` as a fraction from `0` to `1`. Its `mode` is `flat` by default; `build_up` raises the chance by `increase_on_failure` after each failed roll, up to `max`, and resets on success unless `reset_on_success` is `false`.
+
 Use the expanded format when the compact format cannot express what you need. The following sections and the current authoring additions below cover the supported vessel, hardware, and formation behavior.
 
 ---
@@ -424,7 +506,8 @@ must remain in the template.
 ### First airship
 
 This is a complete advanced definition that assembles one airship. Keep
-`chance` at `0` while testing and start it with `/ambush always`.
+`chance` at `0` while testing, turn on always mode with `/ambush always`, and
+start it with `/ambush myambushes:<id>`.
 
 ```json
 {
@@ -496,7 +579,7 @@ not required.
 generating chunks. `air_search_attempts` and `air_step` control that bounded
 search; their defaults are `8` attempts and `4` blocks.
 
-Use `/ambush debug <namespace:id>` before testing an airship. It checks the
+Use `/ambush admin check <namespace:id>` before testing an airship. It checks the
 definition, template resources, placement settings, crew declarations, named
 sources, fill declarations, and hardware requirements without spawning the
 craft.
@@ -600,13 +683,13 @@ or propulsion hardware.
 
 ## 14. Current vessel, hardware, and formation authoring
 
-This section documents the current 1.1.3 vessel features. It supersedes older examples that omit `sable_car`, `power_positions`, or `/ambush admin inspect`. All local coordinates use `[x, y, z]` from the saved schematic's minimum corner. Set `assembly_origin` to the schematic-local block that must become the assembled vessel origin.
+This section documents the current vessel features. It supersedes older examples that omit `sable_car`, `power_positions`, or `/ambush admin inspect`. All local coordinates use `[x, y, z]` from the saved schematic's minimum corner. Set `assembly_origin` to the schematic-local block that must become the assembled vessel origin.
 
 ### Vessel action types
 
 | Type | Required placement | Required controls | Intended use |
 |---|---|---|---|
-| `sable_structure` | Usually `air`; other supported placement modes are allowed when suitable. | Depends on the schematic and configured AI. | Airships and general assembled structures. |
+| `sable_structure` | Usually `air`; other supported placement modes are allowed when suitable. | Depends on the schematic and configured controller. | Airships and general assembled structures. |
 | `sable_boat` | `water` | `ship_ai` | Boats placed on eligible water with no AMBUSH physics intervention. `altitude_controller` and `envelope_fill` are not valid. |
 | `sable_car` | `surface` | `ship_ai` and `car_controls` | Ground vehicles. `altitude_controller` and `envelope_fill` are not valid. |
 | `sable_formation` | Inherited or supplied per member. | Per-member. | A coordinated set of vessel members. |
@@ -785,7 +868,122 @@ Use `container_loot` to link embedded containers to a loot table after the vesse
 ```
 
 Loot tables live at `data/<namespace>/loot_table/<path>.json`. A five-slot hopper table should generate five entries or rolls when all five slots must be filled. For a mixed ammunition hopper, give each desired item a weighted entry and set the generated item count to the requested stack size. Validate item IDs and test the assembled container, not only the JSON reload.
+## Lootr containers
 
+Lootr is an optional integration. When Lootr is installed, a vessel's loot
+containers can be converted to per-player containers, so every player who
+boards gets their own roll of the table instead of the first one aboard taking
+everything. AMBUSH has no compile-time dependency on Lootr: when Lootr is
+absent, the same authored table is applied through the ordinary vanilla path
+and nothing about the definition changes.
+
+This applies to the `container_loot` rules on `sable_structure`, `sable_boat`,
+`sable_car`, and `sable_formation` actions.
+
+### Defaults
+
+Lootr conversion is **on by default** for vessel containers. A definition that
+already uses `container_loot` needs no changes to benefit from it.
+
+Two fields control it:
+
+| Field | Level | Meaning |
+|---|---|---|
+| `lootr_compatibility` | Vessel action | Default for every `container_loot` rule on that action. Defaults to `true`. |
+| `lootr` | One `container_loot` rule | Overrides the action default for that rule only. |
+
+```json
+{
+  "type": "sable_structure",
+  "template": "myambushes:airship/hostile_balloon",
+  "lootr_compatibility": true,
+  "container_loot": [
+    {
+      "positions": [[6, 3, 4]],
+      "loot_table": "myambushes:captains_chest"
+    },
+    {
+      "positions": [[4, 2, 1], [5, 2, 1]],
+      "loot_table": "myambushes:side_ammunition_hopper",
+      "lootr": false,
+      "replace_existing": true
+    }
+  ]
+}
+```
+
+Set `lootr_compatibility: false` on the action to opt a whole vessel out, or
+`"lootr": false` on a single rule to opt out one set of containers.
+
+### What is never converted
+
+- **Hoppers are never converted**, under any setting. They are ammunition and
+  automation inventories, and replacing one would break the machine it feeds.
+  A broad block selector or a rule that opts in explicitly still cannot convert
+  a hopper.
+- **A rule with more than one loot table is never converted.** Lootr holds one
+  table per container, so a rule using `loot_tables` with several entries falls
+  back to the vanilla path and fills the container by generating from each table
+  in turn. Use a single `loot_table` for any container that should be per-player.
+
+### Failure is safe
+
+Conversion happens inside the assembled plot, not at the template's coordinates
+in the dimension, because the container is on a Sable sub-level while the vessel
+is moving.
+
+If Lootr is not installed, reports itself not ready, declines the block, or the
+conversion fails at any step, AMBUSH restores the original block and applies the
+exact same authored table through the ordinary vanilla path. The physical chest
+is never deleted from the vessel and the loot is never lost. Unsuccessful
+conversions are logged at DEBUG level; a failed rollback is logged as a warning.
+
+`replace_existing` applies only on the vanilla path. A converted Lootr container
+takes its entire contents from the table, so schematic contents in it are
+irrelevant.
+
+Each container is filled once and recorded in the vessel's persistent state, so
+a server restart does not re-roll a chest a player has already found.
+
+### Choosing targets
+
+A `container_loot` rule selects its containers the same way with or without
+Lootr:
+
+- `positions` (or `position`) names exact schematic-local coordinates. This is
+  the reliable form when different containers need different tables.
+- `blocks` matches every container of the listed block IDs.
+- With neither, the rule applies to every container detected on the vessel.
+
+Loot tables live at `data/<namespace>/loot_table/<path>.json` and must ship in
+the same active pack as the definition.
+
+### Filling hoppers instead
+
+Because hoppers cannot be Lootr containers, fill them one of two ways:
+
+- `initial_hopper_contents` (or `hopper_contents`) on the vessel action, which
+  fills every detected hopper with a fixed list of stacks.
+- A `container_loot` rule targeting the hopper positions, which fills them from
+  a loot table through the vanilla path. Use `replace_existing: true` when the
+  schematic's own contents must be discarded first.
+
+Both are per-player-agnostic: every player sees the same hopper contents, which
+is what ammunition feeds need.
+
+### Testing
+
+1. Confirm the loot tables are present in the same active pack, then run
+   `/reload` and `/ambush admin check <namespace:id>`.
+2. Spawn the vessel and run `/ambush admin inspect` to confirm the container
+   coordinates and block IDs match the rule.
+3. Open the container in-game. A converted Lootr container shows Lootr's own
+   per-player behavior; an unconverted one is an ordinary chest with generated
+   contents.
+4. With Lootr installed, check with a second player that each gets an
+   independent inventory.
+5. If a container did not convert, enable `/ambush admin debug` and check the
+   server log for the reason at DEBUG level. The most common causes are a rule
 ### Hardware requirements and inspection
 
 `hardware_requirements` makes a vessel fail closed when a necessary category is missing. Supported checks include minimum seats, levers, buttons, analog controls, and engines or propellers. Keep these requirements aligned with the actual schematic so a template change cannot silently create an unusable vessel.
@@ -796,25 +994,22 @@ After spawning an AMBUSH vessel, run:
 /ambush admin inspect
 ```
 
-The command selects the nearest active AMBUSH vessel and prints its action and template, schematic-local origin, configured AI and car controls, required hardware, local positions for detected hardware categories, and actual block IDs. Copy those local positions into `positions`, `power_positions`, `car_controls`, `container_loot`, or cannon-related rules. The full inspection report is also written to the server log.
+The command selects the nearest active AMBUSH vessel and prints its action and template, schematic-local origin, configured controller and car controls, required hardware, local positions for detected hardware categories, and actual block IDs. Copy those local positions into `positions`, `power_positions`, `car_controls`, `container_loot`, or cannon-related rules. The full inspection report is also written to the server log.
 
 ### Final vessel test sequence
 
 1. Confirm the template and all referenced loot tables are present under the same active datapack namespace.
-2. Run `/reload`, then `/ambush validate` and `/ambush debug <namespace:id>`.
-3. Start the definition with `/ambush always <namespace:id>` while its normal conditions are satisfied.
-4. Run `/ambush admin inspect` and correct any local-coordinate or hardware mismatch before tuning AI timings.
+2. Run `/reload`, then `/ambush admin check` and `/ambush admin check <namespace:id>`.
+3. Turn on always mode with `/ambush always`, then start the definition with `/ambush <namespace:id>`.
+4. Run `/ambush admin inspect` and correct any local-coordinate or hardware mismatch before tuning controller timings.
 5. Test container contents and every redstone control, including a full sequenced battery cycle.
 6. Run `/ambush clear` once to remove the complete AMBUSH-owned batch.
+7. Turn always mode back off with a second `/ambush always`, then confirm the definition still runs under its own conditions.
 
-The legacy master example is not used as a current executable template: its referenced resource is not shipped with the present source tree. The examples in this guide are therefore the supported starting point; validate every definition against the installed AMBUSH build before distributing it.
+The examples in this guide are the supported starting point. Validate every definition against the installed AMBUSH build before distributing it.
 
 ---
 
-## 15. Current 1.1.3 additions and superseding rules
-
-This section is additive. Earlier material remains valid unless it conflicts
-with an item below; in that case this section is authoritative.
 
 ### External-pack delivery
 
@@ -956,10 +1151,54 @@ The command runs as the server at permission level 2. `{player}` is replaced
 with the target player's name; chained ambushes still use AMBUSH's normal
 chain-safety checks.
 
+### Contract items
+
+`quest_contract` is an action-level object that lets a player start an
+encounter by using an item, and choose its target by naming the item. It works
+without FTB Quests; any means of giving the item works.
+
+```json
+"quest_contract": {
+  "item": "minecraft:paper",
+  "attempt_interval_ticks": 600
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `item` | Required item registry ID the contract is carried on. |
+| `attempt_interval_ticks` | Retry interval while the encounter cannot yet spawn. Default `600`; must be between `20` and `72000`. |
+
+The item itself must carry `minecraft:custom_data` with an `ambush_contract`
+string equal to the ID of the definition that declares the contract. Both must
+match: the held item's registry ID against `item`, and the `ambush_contract`
+value against the definition's own ID. If two definitions claim the same item
+with different IDs, the contract is ignored and a warning is written to the
+server log.
+
+The player renames the item in an anvil to an online player's exact name, then
+right-clicks it. Using an unrenamed contract prints a reminder and consumes
+nothing. Naming a player who is not online prints a message and consumes
+nothing. On a successful claim the item is consumed, and AMBUSH retries the
+encounter against that player every `attempt_interval_ticks` until it can spawn
+safely, reporting completion to the player who used the contract. Retries use
+the definition's normal conditions, so a contract for a night-time encounter
+waits for night. A pending contract survives the target logging out and resumes
+when they return.
+
+An FTB Quests reward can hand out a contract with an ordinary `give` command:
+
+```text
+give {p} minecraft:paper[minecraft:custom_data={ambush_contract:"myambushes:cannon_fleet"},minecraft:custom_name='{"text":"Cannon Fleet Contract — Rename to Target","italic":false}'] 1
+```
+
+`{p}` is the FTB Quests player placeholder. The item ID, the `ambush_contract`
+value, and the corresponding `quest_contract` declaration must all agree.
+
 ---
 
 ## Compatibility
 
-Create, Create Aeronautics/Simulated, Sable, and Create Big Cannons are optional integrations.
+Create, Create Aeronautics/Simulated, Sable, FTB Quests, Lootr and Create Big Cannons are optional integrations.
 
-Ordinary entity, sound, effect, and vanilla encounter definitions work without them. Sable actions fail closed when their required runtime is unavailable. A generic action that references a missing optional entity is skipped safely and reported in the server log rather than crashing the server. Use `/ambush debug <namespace:id>` to identify missing requirements before testing.
+Ordinary entity, sound, effect, and vanilla encounter definitions work without them. Sable actions fail closed when their required runtime is unavailable. A generic action that references a missing optional entity is skipped safely and reported in the server log rather than crashing the server. Use `/ambush admin check <namespace:id>` to identify missing requirements before testing.
