@@ -1,6 +1,7 @@
 # Ambush
 
-(TEMPORARY) - I am creating a modpack that will be an example for this mod. If you have ambush ideas, schematics, or suggestions please join the discord! https://discord.gg/BHEQthrSSD
+(TEMPORARY) - I am creating a modpack that will be an example for this mod. If you have ambush ideas, schematics, or suggestions please join the discord! [https://discord.gg/BHEQthrSSD](https://discord.gg/BHEQthrSSD)
+
 Ambush is a server-authoritative NeoForge 1.21.1 mod for configurable, per-player hostile encounters. Install it on the server and connecting clients because the full feature set includes client fog/audio payloads. Encounter definitions are data-driven JSON files loaded from every server datapack under:
 
 Definitions enter the runtime through a Mojang `Codec` boundary and recursive action validation. Unknown trigger/action modes and invalid bounded fields are rejected during datapack reload instead of being silently ignored.
@@ -18,23 +19,22 @@ Create, Create Aeronautics/Simulated, Sable, and Create Big Cannons are optional
 
 ## Installation
 
-Install `ambush-1.1.2.jar` on the server and connecting clients. It is intended to be distributed with a normal CurseForge modpack. Definitions may be bundled inside the mod or supplied by a separate datapack. Put a datapack in a world’s `datapacks` directory, run `/reload`, and the definitions become available without rebuilding the mod.
+Install `ambush-1.1.4.jar` on the server and connecting clients. It is intended to be distributed with a normal CurseForge modpack. Definitions may be bundled inside the mod or supplied by a separate datapack. Put a datapack in a world’s `datapacks` directory, run `/reload`, and the definitions become available without rebuilding the mod.
 
 The mod does not edit other mods’ files or require a scripting platform. Ordinary encounters remain loaded-chunk-only; Sable ship assembly synchronously loads only the bounded destination and internal plot chunks required for that ship.
 
 ## Making your own encounters
 
-**Start here: [`DATAPACK_GUIDE.md`](DATAPACK_GUIDE.md).** It walks through the
+**Start here: [DATAPACK_GUIDE.md](DATAPACK_GUIDE.md).** It walks through the
 datapack layout, a complete working encounter, presets, mobs, unlocks, the
 commands, and troubleshooting. No Java, no rebuilding — write a JSON file, run
 `/reload`, and it is live.
 
 You can also copy the `ambush_easy_template` folder out of the jar and edit
-`my_first_ambush.json` as a starting point.
+`data/my_pack/ambushes/my_first_ambush.json` as a starting point.
 
-For AI-assisted authoring, use `AI_DATAPACK_AUTHORING_GUIDE.txt`. It
-distinguishes implemented fields from accepted-but-inert and currently
-rejected fields, and includes validation and edge-case matrices.
+For the full encounter format, advanced features, examples, and troubleshooting,
+see [DATAPACK_GUIDE.md](DATAPACK_GUIDE.md).
 
 ## Commands
 
@@ -42,22 +42,39 @@ Help and listing are available to players. Starting or clearing encounters and
 the admin tools require permission level 2.
 
 ```text
+/ambush
 /ambush list
 /ambush <id>
+/ambush <id> <player>
+/ambush player <player>
+/ambush player <player> <id>
 /ambush always
 /ambush clear
+/ambush enable [pack]
+/ambush disable [pack]
 /ambush admin check
 /ambush admin check <id>
 /ambush admin debug
 /ambush admin weights
 /ambush admin unlocks
+/ambush admin unlockall
 /ambush admin inspect
+/ambush admin spawning
+/ambush admin spawning status
+/ambush admin spawning <id> [enable|disable]
 ```
 
 `/ambush always` toggles persistent always mode for the executing player.
-While on, `/ambush <id>` skips normal time, height, biome, and chance
-conditions. `always` has no encounter argument: toggle it on, then run
-`/ambush <id>`.
+While on, `/ambush <id>` skips the entire eligibility check: trigger
+requirement, time, height, biome, dimension, portal proximity, and required
+nearby blocks. `always` has no encounter argument: toggle it on, then run
+`/ambush <id>`. Run `/ambush always` again to turn it off. Running `/ambush`
+with no argument reports the current state.
+
+Running a definition by name never rolls its chance and always clears its
+cooldown group, so always mode is only needed to bypass conditions.
+`/ambush <id> <player>` targets another player and ignores conditions
+regardless of always mode.
 
 `/ambush admin check` reports loaded, dependency-hidden, and rejected
 definitions. Adding an ID runs the detailed read-only preflight. `/ambush
@@ -68,13 +85,26 @@ boss bars, tracked audio, and fog while preserving chance and cooldown history.
 local origin, configured controls, detected hardware categories, block IDs, and
 schematic-local positions. It is intended for creating or troubleshooting
 data-driven ship, boat, and car definitions.
-## Vehicles and potato cannons
+
+`/ambush admin spawning` toggles natural spawning for the whole server; while
+it is off nothing spawns on its own but named encounters still run.
+`/ambush admin spawning status` reports that toggle plus any individually
+disabled definitions, and `/ambush admin spawning <id>` reads or changes one
+definition. `/ambush enable [pack]` and `/ambush disable [pack]` work on a
+whole datapack namespace; a blank argument targets `ambush`, the bundled set.
+
+`/ambush admin weights` reports each definition's effective weight, base
+weight, current chance, and cooldown group. `/ambush admin unlocks` reports
+unlock progress, and `/ambush admin unlockall` unlocks everything for the
+executing player.
+
+## Vehicles, boats, and potato cannons
 
 Ambush supports data-driven ground vehicles through `sable_car`. Cars use a
 surface-placement adapter and explicit `car_controls` positions for steering,
 clutch, reverse, and throttle hardware.
 
-Car AI supports:
+Car controllers support:
 
 - `broadside`: circles at the configured distance while keeping a selected side
   aimed toward its target, with automatic chase outside `target_range`.
@@ -83,6 +113,21 @@ Car AI supports:
   `broadside_brake_min_range`, `broadside_brake_range`, and
   `target_still_speed`.
 
+`sable_boat` places a vessel on eligible open water. Ambush resolves the
+exposed water surface at each candidate anchor and counts consecutive water
+blocks downward; `minimum_water_depth` (default `2`, range 1–256) rejects
+shallow water and `water_spawn_height` (default `2`, range 1–16) sets the
+height above that surface. After assembly Ambush never changes a boat's
+position or velocity — Sable/Aeronautics handle all motion and buoyancy, and
+no waterline lock is applied. Boats use the normal crew, cannon, redstone,
+event, steering, propulsion, cleanup, and container systems, but cannot use
+`altitude_controller` or `envelope_fill`.
+
+A `sable_formation` member may explicitly be a `sable_structure`,
+`sable_boat`, or `sable_car`, so a single fleet can mix airships with boats or
+cars. Each member needs its own valid placement data and a unique
+`structure_key`.
+
 Redstone-driven machines can use `power_positions` alongside visible button
 `positions`. For sequenced activations, entries are paired by index, allowing
 each button press to power its matching receiver even when moving-assembly
@@ -90,7 +135,8 @@ redstone wiring is not directly adjacent.
 
 The bundled Pillager Potato Car demonstrates broadside and forward mounted
 potato cannons, staggered side firing, hopper-loaded ammunition, and
-data-driven ground-vehicle controls.
+data-driven ground-vehicle controls. The bundled boat encounters demonstrate
+tiny broadside, forward autocannon, and fishing-boat configurations.
 
 ## Runtime safety and transactional fleets
 
@@ -165,6 +211,7 @@ The expanded format is better for reusable datapacks and is also accepted:
 - `cooldown_ticks`: expanded-format cooldown.
 - `chance`: compact percentage from `0` to `100`.
 - Expanded `chance.base`: probability from `0.0` to `1.0`.
+- `cooldown_group`: shared cooldown key; definitions in the same group share one cooldown. Defaults to `default`.
 - A definition only consumes a cooldown after at least one entity was successfully spawned.
 
 Examples:
@@ -216,6 +263,16 @@ Examples:
 ```json
 {"trigger":"block_active","interval":100,"cooldown":18000,"chance":8,"active_blocks":["createoreexcavation:extractor"],"spawns":[{"entity":"minecraft:zombie","count":5}]}
 ```
+
+`structure` rolls only inside a matching loaded structure piece; see "Structure triggers and chance buildup" below.
+
+`kill` runs after the target kills a qualifying entity. `kill_count` sets how many kills are required, from `1` to `10000`, and defaults to `1`. `kill_entity` restricts it to one entity ID; omit it to count any kill.
+
+```json
+{"trigger":"kill","kill_entity":"minecraft:pillager","kill_count":12,"cooldown":1800,"chance":100,"spawns":[{"entity":"minecraft:vindicator","count":3}]}
+```
+
+`vanilla_raid_wave` is driven by raid events rather than the periodic check, so it does not run from a schedule.
 
 The trigger field is deliberately extensible. Unknown trigger names fail closed instead of silently creating an uncontrolled encounter.
 
@@ -360,7 +417,7 @@ Generic entity rain can target vanilla or modded entity IDs. This is the compati
 ]
 ```
 
-If an optional mod or entity ID is absent, that action skips the missing entity rather than crashing the server.
+If an optional mod or entity ID is absent, that action skips the missing entity rather than crashing the server. CBC shell rain reports a zero-shell result as a failed scheduled action instead of silently succeeding; use `required: true` for an encounter that must not continue without its artillery.
 
 Potion-cloud rain:
 
@@ -472,14 +529,14 @@ To bound fleet spawn cost, Ambush prepares at most one previously unloaded desti
 - Cleanup removes Ambush-created fixed constraints first, unregisters the Aeronautics flyover, releases command force-load tickets, and directly removes the complete Sable family child-first. Initial child sublevels, later split fragments, and the parent are all included; nearby-player fragment-promotion rules do not preserve Ambush debris after threshold cleanup.
 - `despawn_effect`: optional data-driven effect played immediately before timed or damage-threshold cleanup. `"explosion"` or an object with `type: "explosion"` is supported. `power` defaults to `3.0`; `fire` and `block_damage` default to `false`. Omit it or use `"none"` for silent cleanup.
 - `attach_child_sublevels`: when `true`, Ambush creates fixed Sable constraints between the parent and persistent child bodies, such as converted vanilla barrels. Constraint anchors are persisted and rebuilt after server or world restarts. Leave this false for intentionally detachable physics cargo.
-- `envelope_fill`: optional initial Aeronautics balloon fill fraction from `0.0` to `1.0`. It is applied once after the balloon graph initializes; burners and leaks control the gas normally afterward.
+- `envelope_fill`: optional initial Aeronautics balloon fill fraction from `0.0` to `1.0`. It is applied once after the balloon graph initializes; burners and leaks control the gas normally afterward. It is not an altitude controller — use `altitude_controller` for ongoing lift control.
 - `cannonballoon_flight_profile`: defaults to `true` for `template: "ambush:cannonballoon"` and may be set to `false` to opt out. The profile starts at fill `1.0`, rejects underground targets, and maps the player Y level to Simulated analog throttle: `<=80` is `3`; `>=81` is `4`.
 - `engine_burn_ticks` or `engine_burn_seconds`: initial remaining burn time applied to every Simulated portable engine in the assembled parent. `3000` ticks is 2.5 minutes.
 - `engine_superheated`: optional boolean. When `true`, Ambush invokes Simulated's portable-engine superheated state in addition to the configured burn time. It is ignored safely when Simulated/Aeronautics is unavailable.
 - `throttle_signal`: fixed Simulated throttle-lever output from `1` to `15`.
 - For a five-minute, full-power ship, use `"engine_burn_seconds":300` and `"throttle_signal":15`. These are ordinary datapack fields, not hard-coded fleet behavior.
 - `throttle_signal_by_y`: ordered Y rules captured when the ambush starts. Each rule accepts `min_y`, `max_y`, and a clamped `signal` from `1` to `15`; the first matching rule wins.
-- `container_loot`: one rule or an array of rules applied to unopened structure-NBT containers after assembly. Each rule requires `loot_table`, may filter `blocks`, and may specify `seed` or `replace_existing`. When the active Sable stack converts containers into persistent child sublevels, Ambush follows the parent/child association and applies loot in those child plots.
+- `container_loot`: one rule or an array of rules applied to unopened structure-NBT containers after assembly. Each rule requires `loot_table`, may filter `blocks` or exact `positions`, and may specify `seed`, `replace_existing`, or `lootr`. When the active Sable stack converts containers into persistent child sublevels, Ambush follows the parent/child association and applies loot in those child plots.
 - `entities`: entities created after successful assembly. An entry may use `entity`, `nbt.id`, or both. When both are present, `entity` wins.
 - `nbt`: either a JSON object or an SNBT string. Position and Ambush ownership are applied after NBT loading.
 - `local: [x,y,z]` or `local_x/local_y/local_z`: placement relative to the template's minimum corner. Missing X/Z coordinates default to the template center.
@@ -487,7 +544,7 @@ To bound fleet spawn cost, Ambush prepares at most one previously unloaded desti
 - `target_range`: owning-player range, in blocks, at which a normal spawned Ambush mob becomes hostile. It also sets that mob's follow-range attribute.
 - `aggro_range`: optional `4`–`512` block activation radius. `deaggro_range` is the larger distance at which an existing target is dropped; mobs remain passive until a valid player re-enters `aggro_range`.
 - `nearby_player_range`: players within this distance of the originally ambushed player become valid targets. It defaults to `32`. Normal mobs require line of sight unless `aggro_through_walls` is true. Seated Sable crew use live world-space distance and keep their normal equipment and attack goals.
-- Ambush never replaces a seated mob's held weapon or fabricates arrows for it. Weapon-specific behavior still comes from that entity and weapon's normal AI; Ambush supplies owner targeting and transformed aiming.
+- Ambush never replaces a seated mob's held weapon or fabricates arrows for it. Weapon-specific behavior still comes from that entity and weapon's normal goals; Ambush supplies owner targeting and transformed aiming.
 - `friendly_fire`: defaults to `false`. Set it to `true` only when Ambush-owned mobs should be able to damage other Ambush mobs with the same owner.
 - `extra_health`: adds `0`–`2048` maximum health and heals the newly created mob to that new maximum.
 - `extra_damage`: adds `0`–`1024` damage to attacks made by that mob, including its owned projectiles. It does not modify unrelated entities.
@@ -501,12 +558,11 @@ Sable-only definitions may use an empty `spawns` array. Queuing the structure th
 
 ### Testing new datapack definitions
 
-Put or edit definitions under the active world's `datapacks` folder, or in a loaded server resource/data pack, using `data/<namespace>/ambushes/<id>.json`. Run the vanilla `/reload` command. Ambush rebuilds its definition registry during that reload and logs compatible, dependency-hidden, and rejected counts. Then use `/ambush list`, `/ambush admin check`, or tab completion to confirm the new ID before testing it with `/ambush always <namespace>:<id>`.
+Put or edit definitions under the active world's `datapacks` folder, or in a loaded server resource/data pack, using `data/<namespace>/ambushes/<id>.json`. Run the vanilla `/reload` command. Ambush rebuilds its definition registry during that reload and logs compatible, dependency-hidden, and rejected counts. Then use `/ambush list`, `/ambush admin check`, or tab completion to confirm the new ID before testing it. Toggle `/ambush always` on, then run `/ambush <namespace>:<id>`.
 
 Changing JSON data only requires `/reload`; changing the Ambush jar, Java code, or bundled resources still requires a game/server restart.
 
 Bundled Ambush encounters are embedded under `data/ambush/ambushes/` with production IDs. Ordinary encounters may trigger naturally; unlockable encounters use progress and activation instead of chance. To force-test a compatible ID, enable `/ambush always` and then run `/ambush <id>`.
-
 
 ### Conditional and delayed actions
 
@@ -516,9 +572,9 @@ Actions may include `conditions` with `time: "day"|"night"`, `weather: "clear"|"
 
 ### Sable formations
 
-`sable_formation` applies one shared Sable definition to every object in `members`. Each member may override any top-level formation field, including `template`, `structure_key`, `spawn_distance`, `spawn_bearing_degrees`, `offset_y`, entities, lifetime, and engine settings. This permits heterogeneous fleets: for example, one `ambush:cannonballoon`, one `ambush:airballoonfloat`, and one `ambush:barrelballoon` in the same encounter. Fields omitted by a member inherit from the parent action. Give each member a unique `structure_key` when later actions need to target it. Bearings are relative to the player's facing direction at encounter start: `0` is ahead, `90` is one side, and `-90` is the other. Use `facing: "player"` to rotate every north-authored ship toward the player.
+`sable_formation` applies one shared Sable definition to every object in `members`. Each member may override any top-level formation field, including `type`, `template`, `structure_key`, `spawn_distance`, `spawn_bearing_degrees`, `offset_y`, entities, lifetime, and engine settings. This permits heterogeneous fleets: for example, one `ambush:cannonballoon`, one `ambush:airballoonfloat`, and one `ambush:barrelballoon` in the same encounter, or a mix of airships, boats, and cars. Fields omitted by a member inherit from the parent action. Give each member a unique `structure_key` when later actions need to target it, and do not give the formation parent its own `structure_key` or inherited members can resolve to the same assembly slot. Bearings are relative to the player's facing direction at encounter start: `0` is ahead, `90` is one side, and `-90` is the other. Use `facing: "player"` to rotate every north-authored ship toward the player.
 
-Active ships use UUID-staggered maintenance rather than running every subsystem or every fleet member on the same tick. `maintenance_interval_ticks` is data-driven from `5` through `200` and defaults to `10`; lower values react faster but cost more CPU. Static setup stops after success, hardware is cached, child discovery runs once per second, cannon-shot routing uses a sublevel index, and general Ambush mob AI shares one owner/entity index instead of rescanning every loaded entity for each feature.
+Active ships use UUID-staggered maintenance rather than running every subsystem or every fleet member on the same tick. `maintenance_interval_ticks` is data-driven from `5` through `200` and defaults to `10`; lower values react faster but cost more CPU. Static setup stops after success, hardware is cached, child discovery runs once per second, cannon-shot routing uses a sublevel index, and general Ambush mob targeting shares one owner/entity index instead of rescanning every loaded entity for each feature.
 
 Use `facing: "orbit_clockwise"` or `facing: "orbit_counterclockwise"` to rotate a north-authored ship tangent to its spawn radius around the player. This sets the initial propulsion direction only; Sable/Aeronautics physics still determine the actual path and do not provide automatic centripetal steering.
 
@@ -536,7 +592,7 @@ creates a distributed surround rather than placing the entire group at one coord
 
 ## Complete showcase definition
 
-The exhaustive authoring reference is documented in `MASTER_TEMPLATE.md`; it is not bundled as an active encounter. It documents the complete spawn, targeting, Sable, sound, fog, redstone, steering, and projectile action families without creating a natural encounter from those advanced systems.
+The example below shows how several of Ambush's spawn, targeting, effect, and condition systems can be combined in one encounter.
 
 ```json
 {
@@ -563,7 +619,7 @@ The exhaustive authoring reference is documented in `MASTER_TEMPLATE.md`; it is 
 
 ## Bundled content
 
-The mod embeds environmental, structure, weather, portal, activity-earned, and optional Sable encounters. Activity encounters can react to structure-specific kills, mined blocks and mining height, altitude crossings, timed travel, dimension transitions, biome residence, and boat residence. `ambush:pillagerairship` and `ambush:pillagercannonship` remain chance-zero clean-room ship integration tests.
+The mod embeds environmental, structure, weather, portal, activity-earned, and optional Sable encounters. Activity encounters can react to structure-specific kills, mined blocks and mining height, altitude crossings, timed travel, dimension transitions, biome residence, and boat residence. The bundled airship, boat, and car encounters — such as `ambush:ship_pillager_airship`, `ambush:boat_pillager_forward_autocannon`, and `ambush:pillager_potato_car` — double as working examples of every vessel action type.
 
 The definitions use the same datapack format available to pack creators and are not hard-coded special cases. A pack creator can delete, override, disable, or replace them with a higher-priority datapack.
 
@@ -572,7 +628,7 @@ The definitions use the same datapack format available to pack creators and are 
 1. Place JSON files under `data/<namespace>/ambushes/`.
 2. Run `/reload`.
 3. Run `/ambush list`.
-4. Test with `/ambush <id>` or `/ambush <id> (player)`.
+4. Test with `/ambush <id>` or `/ambush <id> <player>`.
 5. Check the server log for NeoForge reload or JSON errors.
 
 Use namespaced IDs when a datapack has more than one source:
@@ -582,11 +638,13 @@ Use namespaced IDs when a datapack has more than one source:
 /ambush ambush:overworld_portal_piglin_incursion
 ```
 
+If a definition runs by name but never occurs on its own, check that natural spawning is enabled with `/ambush admin spawning status`, that its namespace has not been disabled with `/ambush disable`, and its weight and unlock state with `/ambush admin weights` and `/ambush admin unlocks`.
+
 Use a small chance, a long cooldown, and a bounded attempt count for large multiplayer encounters. Avoid definitions that spawn hundreds of mobs, use very large radii, or create many overlapping periodic checks.
 
 ## Design limits
 
-Ambush creates bounded encounters and targets their owner. Broader quest, claim, world-generation, and general-purpose AI systems require their own dedicated integrations.
+Ambush creates bounded encounters and targets their owner. Broader quest, claim, world-generation, and general-purpose behavior systems require their own dedicated integrations.
 
 Living Sable encounters remain loaded through the server's final world save. Ambush does not remove their Sable force-load tickets from `ServerStoppingEvent`, because unloading active physics ships between the pause save and final save can stall shutdown. Tickets are still removed by normal encounter cleanup, `/ambush clear`, and direct Sable-family destruction.
 
@@ -623,7 +681,7 @@ Potions use `kind: "potion"`, optional `item: "minecraft:splash_potion"` or `min
 
 ## Structure triggers and chance buildup
 
-Trigger type `structure` rolls only while the player's loaded position is inside a matching structure piece. It does not locate structures, force chunks, or generate terrain. `conditions.structures` accepts IDs and tags such as `#minecraft:village`. Define reusable local lists in `conditions.structure_groups`, then select one or more with `structure_group` or `use_structure_groups`. Direct selectors and selected groups are ORed.
+Trigger type `structure` rolls only while the player's loaded position is inside a matching structure piece. It does not locate structures, force chunks, or generate terrain. `conditions.structures` accepts IDs and tags such as `#minecraft:village`. Define reusable local lists in `conditions.structure_groups`, then select one or more with `structure_group` or `use_structure_groups`. Direct selectors and selected groups are ORed. A definition with no resolvable selector never matches.
 
 ```json
 {
@@ -651,7 +709,7 @@ Trigger type `structure` rolls only while the player's loaded position is inside
 
 `check_every_ticks` controls the proc period (`1200` is one minute). Advanced definitions require an object-form `trigger`; chance values are probabilities from `0.0` to `1.0`. Top-level `trigger`, `interval`, `cooldown`, and `chance` fields are rejected. `mode: "flat"` always rolls `base`. `mode: "build_up"` adds `increase_on_failure` after each eligible failed roll, capped at `max`. Failure state is per player and ambush, persists in world SavedData, and resets after success when `reset_on_success` is true. Eligibility, proc interval, and cooldown are checked before a failure can increase chance. If multiple successful candidates share a cooldown group, `weight` selects one proportionally; it defaults to `100`, and `0` disables only automatic selection. Unlock definitions may add `weight_scaling` with `linear` or `multiplier` mode, `start_at`, `per_unit`, `minimum`, and `maximum`; `/ambush admin weights` reports the effective and base weight when they differ.
 
-Unlock progress events are `kill`, `kill_at_structure`, `mine_block`, `y_level_crossing`, `travel_distance`, `portal_use`, `biome_time`, and `boat_time`. Deaths and mining are event-driven; movement, biome, crossing, and boat state are sampled once per second. Time-window progress, decimal travel, activation, and completion persist in world data. See `EASY_DATAPACK_GUIDE.md` for every field and edge case.
+Unlock progress events are `kill`, `kill_at_structure`, `mine_block`, `y_level_crossing`, `travel_distance`, `portal_use`, `biome_time`, and `boat_time`. Deaths and mining are event-driven; movement, biome, crossing, and boat state are sampled once per second. Time-window progress, decimal travel, activation, and completion persist in world data. `/ambush admin unlocks` reports each unlockable definition's tracked event and progress; `/ambush admin unlockall` unlocks them for testing. See [DATAPACK_GUIDE.md](DATAPACK_GUIDE.md) for the full datapack reference.
 
 `type: "raid"` provides vanilla-style persistent waves with one shared boss bar, a horn before every wave, named wave groups, living-member clear checks, victory presentation, restart recovery, and bounded cleanup. Set `count_toward_wave: false` on a spawn entry for passive mounts or scenery entities that must not hold the wave open. Group `on_spawn_actions` can launch directional arrow or entity rains from every successful group spawn position. The bundled `ambush:rare_thunder_bone_tempest_raid` demonstrates hidden land-only archers, non-counting skeleton-horse mounts, lightning sword troops, longer later-wave directional indicators, and a final champion.
 
@@ -697,6 +755,9 @@ Trigger fields:
 - `require_living_crew`: defaults to `true`. At least one living entity created by that specific Sable action must remain alive. Set it to `false` for uncrewed automation.
 - Entity entries may set `fill_all_seats: true` with `seat: true` to create one mob for every available Create seat. `spawn_on_blocks` accepts block IDs or tags such as `#minecraft:planks` and places the requested extra mobs on randomly selected safe matching deck blocks.
 - `player_direction`: continuously tests the owner's live direction in the moving sublevel's local frame. Values are `front`, `front_right`, `right`, `back_right`, `behind`, `back_left`, `left`, `front_left`, `above`, and `below`. `direction_tolerance_degrees` controls each sector's half-width. Combine this with `range`, `require: "all"`, `positions`, and the default crew gate to activate side-specific buttons, levers, or analog components only while living crew remains. Add `repeat_ticks` to re-evaluate and pulse a matching activation at a bounded interval; omit it for the ordinary one-shot behavior.
+- `sequence_interval_ticks`: staggers a multi-button activation in array order. Four broadside buttons with `button_ticks: 20` and `sequence_interval_ticks: 30` press one for 20 ticks, wait at least 10, then press the next. The sequence resets after its final control, so a new cycle cannot overlap an unfinished one.
+- `power_positions`: paired by index with `positions`, for controls whose mounted device must receive redstone power in addition to the visible button changing state.
+- `cannon_alignment`: a per-cannon arc gate containing `mount_local`, `aim_local`, and `arc_degrees`. It compares the live target against a full 3-D vector in template-local coordinates starting at that cannon's mount, so each weapon fires only inside its own arc. Use one activation per weapon when arcs differ.
 - Initial `throttle_signal`/`throttle_signal_by_y` application is crew-gated too. Set `throttle_requires_living_crew: false` only for intentionally autonomous ships.
 
 Component fields:
@@ -727,6 +788,7 @@ Sable actions may include `steering_controls`. Each control continuously calcula
 - `invert`, `angle_scale`, and `angle_offset` transform the selected angle before clamping. `invert_with_propulsion_direction` defaults to the action-level `steering_follows_propulsion_direction`, which defaults to `true`.
 - `range`, `horizontal_only`, `require_living_crew`, `update_ticks`, `block`/`blocks`, and optional local `positions` control when and which wheels update. Crew gating defaults on.
 - Controls operate independently for every member of a formation, so each ship steers using the owner's live position relative to that individual ship.
+- If a craft turns consistently the wrong way, verify `schematic_front` first, then use `invert`.
 
 ### Propulsion direction
 
@@ -755,13 +817,14 @@ Direction may also track the player's live position relative to each moving ship
 `engine_direction_by_player_direction` and `propeller_direction_by_player_direction` accept `default`, `front`, `front_right`, `right`, `back_right`, `behind`, `back_left`, `left`, `front_left`, `above`, and `below`. Every value is `forward` or `reverse`. An omitted sector uses `default`, then the static direction field. Direction is evaluated in the individual ship's current local frame and propulsion components are updated only when the resolved direction changes.
 
 When propulsion-aware steering is enabled, the wheel angle reverses if exactly one of the engine or propeller directions is reversed. It does not reverse when both or neither are reversed. This exclusive-or rule prevents double reversal. Set action-level `steering_follows_propulsion_direction: false`, or control-level `invert_with_propulsion_direction: false`, to disable automatic compensation. The bundled boss ships run forward while the owner is ahead or beside them, switch to reverse in rear sectors, and compensate their steering automatically.
+
 - `component: "lever"`: sets a vanilla lever. `state` may be `on`, `off`, or `toggle`.
 - `component: "button"`: presses a vanilla button and schedules its release. `button_ticks` controls the pressed duration.
 - `component: "any"`: handles vanilla levers/buttons and compatible analog components.
 - `block` accepts one exact block ID. `blocks` accepts IDs and block tags.
 - Without `positions`, every matching component in the sublevel plot is activated. `positions` limits activation to schematic-local `[x,y,z]` coordinates or `{x,y,z}` objects measured from the plot minimum. Set `absolute_positions: true` only when intentionally using Sable plot coordinates.
 
-Neighbor updates are emitted inside the sublevel after activation. Missing optional analog-lever mods do not prevent Ambush from loading; unmatched entries produce a bounded server warning and are marked complete rather than making another attempt forever. The two bundled boss examples use the real throttle lever in their Sable ships; the master example documents vanilla lever/button syntax for imported schematics that contain those blocks.
+Neighbor updates are emitted inside the sublevel after activation. Missing optional analog-lever mods do not prevent Ambush from loading; unmatched entries produce a bounded server warning and are marked complete rather than making another attempt forever. The two bundled boss examples use the real throttle lever in their Sable ships; imported schematics can use the same vanilla lever/button syntax for controls that contain those blocks.
 
 ## Sable block health and boss bars
 
@@ -866,7 +929,7 @@ Trigger types:
 - `death` or `destroyed`: fires when block health reaches zero or when `destroyed_cleanup_percent` declares the structure destroyed.
 - `repeat_ticks`: when positive, permits spawn/range/time/player-Y events to fire repeatedly at the specified interval while their trigger remains true. Percentage and death events are always one-shot; datapack reload rejects `repeat_ticks` on them.
 
-When one damage scan crosses several percentage thresholds, Ambush evaluates every newly eligible threshold in descending percentage order and queues each one exactly once.
+Use death-triggered events for reward or final cleanup behavior rather than a low block-percent threshold. When one damage scan crosses several percentage thresholds, Ambush evaluates every newly eligible threshold in descending percentage order and queues each one exactly once.
 
 Event actions:
 
@@ -874,7 +937,7 @@ Event actions:
 - `particle`: emits a registered vanilla or modded particle at the moving structure center, including from block/health-percentage events. `particle` accepts normal particle command syntax; `count` is 1-4096, `spread_x`, `spread_y`, `spread_z` control the volume, and `speed` controls particle motion. Use `at: "player"` for the target position or `audience: "owner"` to send only to the originally ambushed player.
 - `redstone`: accepts the same component, block/tag, signal, state, button duration, and schematic-local position fields as `redstone_activations`. An optional nested `activation` object is also accepted.
 - `ambush`: triggers another loaded definition using `ambush` or `id`. `force` defaults to `true`; set it false to honor the referenced ambush's conditions. Persisted generation depth prevents delayed recursion beyond eight generations.
-- `sable_structure` or `sable_formation`: queues an inline additional ship or fleet using the normal Sable schema. Child lineage and generation depth persist across restarts. `max_generation_depth` remains datapack-controlled; AMBUSH applies a shared limit of 32 active ships per owner.
+- `sable_structure`, `sable_boat`, `sable_car`, or `sable_formation`: queues an inline additional vessel or fleet using the normal Sable schema. Child lineage and generation depth persist across restarts. `max_generation_depth` remains datapack-controlled; AMBUSH applies a shared limit of 32 active ships per owner.
 - `fog`: applies the ordinary per-player fog action.
 
 Events default to `require_living_crew: true`: at least one living entity spawned by that exact Sable action must remain alive. Configured living entities default to `crew: true`; set `crew: false` on cargo, prisoners, decorative mobs, or other living passengers that should not keep a ship operational. Seats never count as crew. `seat: true` riders are tracked separately as requested seats; unseated deck crew remain operational crew and do not need to be passengers. Debug output reports `seated=X/Y` separately from `livingCrew=A/B`. This prevents abandoned ships from firing weapons, calling reinforcements, or activating redstone. Death/destroyed events default to `false` so their final sounds and effects can still run. Override the field on an event when needed; individual nested actions can additionally set `require_living_crew: true`.
@@ -911,12 +974,11 @@ The `fog` action changes vanilla fog only for the targeted player. New fog repla
 
 Fog actions support ordinary action `conditions`, `after_ticks`, and persisted scheduling. Fog-only ambushes are valid: accepted actions now count as encounter success for cooldown, chance reset, and command confirmation. The server and client must both run this Ambush build because fog uses an Ambush network payload. Shader mods may reinterpret vanilla fog, so test the target shader stack separately. The bundled fog examples exercise timed fog independently of optional boss structures.
 
-## boss example
+## Bundled boss example
 
+The bundled boss encounter applies fog before assembly so the reveal is not delayed by Sable assembly. Its horn uses `audible_distance: 8`, placing the sound eight blocks from the player along the live direction toward the ship. `fireworks` is a lifecycle or ordinary action with `count`, `height`, `spread`, `flight` (1-3), `shape`, `colors`, and `fade_colors`; the boss emits twelve large, twinkling purple-and-gold rockets when destroyed.
 
-The boss applies fog before assembly so the reveal is not delayed by Sable assembly. Its horn uses `audible_distance: 8`, placing the sound eight blocks from the player along the live direction toward the ship. `fireworks` is a lifecycle or ordinary action with `count`, `height`, `spread`, `flight` (1-3), `shape`, `colors`, and `fade_colors`; the boss emits twelve large, twinkling purple-and-gold rockets when destroyed.
-
-Use it together with the production definitions under `src/main/resources/data/ambush/ambushes/`. Copy a definition into a pack-owned namespace before changing it.
+Use it together with the other bundled definitions the mod loads from `data/ambush/ambushes/`. Copy a definition into a pack-owned namespace before changing it.
 
 ## Schema-hardening fields
 
@@ -955,7 +1017,7 @@ Formation members are isolated by default. They inherit spatial, lifetime, clean
 }
 ```
 
-All supplied fields must match. `block` can also be a `#namespace:tag` string. `block_entity_nbt` is a partial recursive NBT match, so a predicate can select color or another stable block-entity field without requiring an exact copy of unrelated NBT. `seat_predicates` is an OR list. Ambush records each selected seat position on its rider and preserves that assignment through Sable's delayed seating pass. Always inspect the actual block state and block-entity NBT produced by the installed Create/Sable versions before writing a predicate.
+All supplied fields must match. `block` can also be a `#namespace:tag` string. `block_entity_nbt` is a partial recursive NBT match, so a predicate can select color or another stable block-entity field without requiring an exact copy of unrelated NBT. `seat_predicates` is an OR list. Ambush records each selected seat position on its rider and preserves that assignment through Sable's delayed seating pass. Crew placement is entirely datapack-owned: there are no mob-type seat defaults, and with `seat: true` and no selector a mob uses every detected seat. Always inspect the actual block state and block-entity NBT produced by the installed Create/Sable versions before writing a predicate.
 
 ### Persistent lifecycle actions and inline reinforcements
 
@@ -985,9 +1047,31 @@ Each `container_loot` rule may use `loot_tables` plus `combine: true`. Ambush ro
 }
 ```
 
+A rule may also target exact schematic-local `positions`, which is the reliable form when several containers need different tables. Loot tables live at `data/<namespace>/loot_table/<path>.json` and must ship in the same active pack as the definition.
+
+Hoppers are ammunition and automation inventories. Fill them with `initial_hopper_contents` (or `hopper_contents`) for a fixed stack list, or with a `container_loot` rule targeting their positions.
+
+### Optional Lootr containers
+
+When Lootr is installed, vessel loot containers are converted to per-player containers so every player who boards gets their own roll of the table instead of the first one aboard taking everything. Ambush has no compile-time dependency on Lootr: when Lootr is absent the same authored table is applied through the ordinary path and nothing about the definition changes.
+
+Conversion is **on by default** for vessel containers. `lootr_compatibility` on a `sable_structure`, `sable_boat`, `sable_car`, or `sable_formation` action sets the default for every `container_loot` rule on that action; `lootr` on one rule overrides it.
+
+```json
+"lootr_compatibility": true,
+"container_loot": [
+  {"positions": [[6, 3, 4]], "loot_table": "my_pack:captains_chest"},
+  {"positions": [[4, 2, 1]], "loot_table": "my_pack:ammunition", "lootr": false, "replace_existing": true}
+]
+```
+
+Hoppers are never converted under any setting, because replacing one would break the machine it feeds. A rule with more than one loot table is never converted either, since Lootr holds a single table per container; use one `loot_table` for any container that should be per-player.
+
+Conversion happens inside the assembled plot rather than at the template's dimension coordinates, because the container is on a Sable sub-level while the vessel is moving. If Lootr is absent, reports itself not ready, declines the block, or the conversion fails at any step, Ambush restores the original block and applies the identical authored table through the ordinary path. The physical chest is never deleted and the loot is never lost. `replace_existing` applies only on that ordinary path — a converted container takes its whole contents from the table. Each container is filled once and recorded in persistent state, so a restart does not re-roll a chest a player already found. Unsuccessful conversions are logged at DEBUG level.
+
 ### Steering, crew aiming, and safe throttle caps
 
-Seated Ambush mobs retain their normal weapon and vanilla goals. Ambush transforms the live player direction into Sable plot space before updating their target and look direction, allowing crossbow or compatible modded-weapon AI to aim from a moving sublevel without replacing the held item. `aggro_range` remains data-driven, and owner-tag friendly-fire cancellation remains enabled when `friendly_fire` is false.
+Seated Ambush mobs retain their normal weapon and vanilla goals. Ambush transforms the live player direction into Sable plot space before updating their target and look direction, allowing crossbow or compatible modded-weapon behavior to aim from a moving sublevel without replacing the held item. `aggro_range` remains data-driven, and owner-tag friendly-fire cancellation remains enabled when `friendly_fire` is false.
 
 `engine_stress_management` provides a deterministic throttle safety cap:
 
@@ -1013,7 +1097,8 @@ The only supported mode is `capped`. The resolved Y-level throttle is never allo
 ```
 
 It supplies continuous steering toward the owner with stop/resume hysteresis.
-The stress-management cap limits every analog signal.
+A meaningful gap between the stop and resume distances prevents repeated
+direction changes. The stress-management cap limits every analog signal.
 
 `altitude_controller` determines the analog signal from the ship's live world
 height instead of selecting a fixed band from the player's height:
@@ -1038,7 +1123,11 @@ changes proportionally by `gain` and is clamped. Existing
 `throttle_signal_by_y` remains the fallback when no altitude controller is
 declared. `max_signal_step` limits each update to prevent analog oscillation.
 If the owner, pose, or living crew is unavailable, steering returns to zero
-and the analog controls move toward `failsafe_signal`.
+and the analog controls move toward `failsafe_signal`. Additional explicit
+safety fields include `ground_clearance_enabled`,
+`minimum_ground_clearance`, `descent_arrest_enabled`,
+`descent_arrest_margin`, `velocity_lookahead_ticks`, `integral_gain`, and
+`integral_limit`.
 
 `ship_ai` changes horizontal steering behavior:
 
@@ -1061,13 +1150,20 @@ and the analog controls move toward `failsafe_signal`.
   bounded orbit instead of simply stopping.
 - `boarding` uses the same side-on controller with a shorter preferred
   distance, allowing the ship to approach alongside.
+- `overhead` and `flyover` are `sable_structure`-only and require an
+  `altitude_controller`. `overhead` steers to the player's X/Z position and
+  holds there; `flyover` steers through it without the overhead stop. Author
+  altitude with `match_player_y: false` and an `altitude_controller.offset`.
 - `side` accepts `left`, `right`, `nearest`, or stable per-ship `alternate`.
+- `range_holding_thrust_reversal: true` enables range-holding reverse thrust; supply distinct `reverse_at_distance` and `resume_forward_at_distance` for hysteresis. `recovery_turn_enabled: true` enables the full-lock recovery turn.
 
 `height_offset` is also the default player-relative altitude offset when an
 altitude controller omits `offset`. These controls command existing Simulated
 analog and steering hardware; they do not teleport the ship or bypass Sable
 physics. `hardware_requirements` can fail closed and clean up an incompatible
-schematic after assembly.
+schematic after assembly. To fire mounted cannons downward or diagonally,
+physically aim the schematic's mount that way and gate it with a per-cannon
+`cannon_alignment` vector; Ambush does not rotate cannon hardware.
 
 ### Placement and optional-runtime safety
 
@@ -1126,9 +1222,17 @@ Use `cannon_assembly` to power native controls before loading:
 }
 ```
 
+`power_mounts_directly: true` sends an explicit compatibility pulse for a
+schematic whose CBC mount needs it instead of its authored redstone wiring; it
+defaults to `false`. `cannon_assembly.force_mount_assembly: true` is an
+additional explicit recovery option for a mount saved powered but without a
+live contraption.
+
 Use `initial_cannon_loads` for the first shot. `mount_local` is measured from
 the Sable plot minimum. Set `apply_to_all: true` to load every discovered fixed
-cannon mount with one rule.
+cannon mount with one rule. `initial_cannon_load_after_ticks` preloads
+hand-loaded guns once the vessel is operational, independently of range and
+aim, so the guns can stand by while the vessel approaches.
 
 ```json
 "initial_cannon_loads": [{
@@ -1140,11 +1244,90 @@ cannon mount with one rule.
 }]
 ```
 
-Use only `propellant_stack_snbt` for cannon propellant. Occupied,
-damaged, unsupported, or unassembled cannons are never overwritten. Normal
-native redstone controls fire the completed first load. Post-shot automatic
-reload remains a separate compatibility path and is not required by the
-bundled cannon barge.
+Use only `propellant_stack_snbt` for cannon propellant; powder charges are
+intentionally unsupported. Occupied, damaged, unsupported, or unassembled
+cannons are never overwritten. Normal native redstone controls fire the
+completed first load. Post-shot automatic reload uses `cannon_reloads` and
+`cannon_reload_delay_ticks`; it is a separate compatibility path and is not
+required by the bundled cannon barge.
+
+For independently aimed mounts, define one `redstone_activations` entry per
+cannon, pair its real button with `cannon_alignment`, and add
+`fire_mount_local` when moving-hull wiring does not reliably deliver a CBC fire
+edge. Ambush then pulses both the visible button and that mount's native fire
+input. Never use one broad activation as a substitute for several differently
+aimed cannons. CBC-related diagnostics are INFO-level and report assembly,
+preload status, range/alignment skips, button pulses, direct mount activation,
+successful shots, and reloads.
+
+## Optional FTB Quests hooks and contract items
+
+FTB Quests is optional. Ambush loads without it, and these fields and tags are
+ignored when it is not installed.
+
+Tag an FTB quest with `ambush:trigger:<namespace:id>` to start that definition
+when the quest starts. By default, online team members are sources and targets.
+Optional target tags are `ambush:target:self`, `ambush:target:player:<name>`,
+`ambush:target:nearest_other`, `ambush:target:random_online`, and
+`ambush:target:all_other`.
+
+An encounter can complete tagged tasks at start, success, or failure:
+
+```json
+"ftb_quests": {
+  "on_start_task_tag": "ambush:pirates_started",
+  "on_success_task_tag": "ambush:pirates_defeated",
+  "on_failure_task_tag": "ambush:pirates_failed"
+}
+```
+
+`failure_events` tracks the ordinary mobs and Sable vessels created by an
+encounter. It succeeds when `minimum_kill_percent` is met before
+`timeout_ticks`; otherwise its actions run once. Supported failure actions are
+server commands and chained Ambush definitions. The command runs as the server
+at permission level 2, `{player}` is replaced with the target's name, and
+chained ambushes still use the normal chain-safety checks.
+
+```json
+"failure_events": {
+  "timeout_ticks": 12000,
+  "minimum_kill_percent": 75,
+  "actions": [
+    {"type": "command", "command": "say {player} failed the convoy"},
+    {"type": "ambush", "ambush": "my_pack:reinforcements"}
+  ]
+}
+```
+
+`quest_contract` is an action-level object that lets a player start an
+encounter by using an item and choose its target by naming the item. It works
+without FTB Quests; any means of giving the item works.
+
+```json
+"quest_contract": {
+  "item": "minecraft:paper",
+  "attempt_interval_ticks": 600
+}
+```
+
+`item` is the required item registry ID. `attempt_interval_ticks` is the retry
+interval while the encounter cannot yet spawn; it defaults to `600` and must be
+between `20` and `72000`. The item must carry `minecraft:custom_data` with an
+`ambush_contract` string equal to the declaring definition's own ID. If two
+definitions claim the same item with different IDs, the contract is ignored and
+a warning is logged.
+
+The player renames the item in an anvil to an online player's exact name, then
+right-clicks it. An unrenamed contract or an offline target prints a message
+and consumes nothing. On a successful claim the item is consumed and Ambush
+retries the encounter against that player every `attempt_interval_ticks` until
+it can spawn safely. Retries use the definition's normal conditions, so a
+contract for a night-time encounter waits for night, and a pending contract
+survives the target logging out.
+
+```text
+give {p} minecraft:paper[minecraft:custom_data={ambush_contract:"my_pack:cannon_fleet"},minecraft:custom_name='{"text":"Cannon Fleet Contract — Rename to Target","italic":false}'] 1
+```
 
 ### External boundaries
 
