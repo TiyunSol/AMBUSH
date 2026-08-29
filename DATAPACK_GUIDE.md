@@ -101,27 +101,43 @@ Create `data/myambushes/ambushes/midnight_horde.json`:
 
 ```json
 {
-  "trigger": "interval",
-  "interval": 1200,
-  "cooldown": 600,
-  "chance": 5,
-  "min_time": 13000,
-  "max_time": 23000,
-  "dimensions": ["minecraft:overworld"],
-  "radius": 34,
-  "attempts": 32,
-  "spawns": [
-    {
-      "entity": "minecraft:zombie",
-      "count": 9,
-      "persistent": true
-    },
-    {
-      "entity": "minecraft:husk",
-      "count": 3,
-      "persistent": true
+  "trigger": {
+    "type": "interval",
+    "check_every_ticks": 1200,
+    "cooldown_ticks": 600,
+    "chance": {
+      "mode": "flat",
+      "base": 0.05,
+      "max": 0.05
     }
-  ],
+  },
+  "conditions": {
+    "time": {
+      "min": 13000,
+      "max": 23000
+    },
+    "dimensions": ["minecraft:overworld"]
+  },
+  "wave": {
+    "radius": 34,
+    "maximum_attempts_per_member": 32,
+    "groups": [
+      {
+        "spawns": [
+          {
+            "entity": "minecraft:zombie",
+            "count": 9,
+            "persistent": true
+          },
+          {
+            "entity": "minecraft:husk",
+            "count": 3,
+            "persistent": true
+          }
+        ]
+      }
+    ]
+  },
   "sounds": ["minecraft:entity.zombie.ambient"]
 }
 ```
