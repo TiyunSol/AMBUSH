@@ -123,18 +123,14 @@ Create `data/myambushes/ambushes/midnight_horde.json`:
     "maximum_attempts_per_member": 32,
     "groups": [
       {
-        "spawns": [
-          {
-            "entity": "minecraft:zombie",
-            "count": 9,
-            "persistent": true
-          },
-          {
-            "entity": "minecraft:husk",
-            "count": 3,
-            "persistent": true
-          }
-        ]
+        "entity": "minecraft:zombie",
+        "count": 9,
+        "persistent": true
+      },
+      {
+        "entity": "minecraft:husk",
+        "count": 3,
+        "persistent": true
       }
     ]
   },
