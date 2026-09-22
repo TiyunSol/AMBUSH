@@ -1,21 +1,447 @@
-MIT License
+AMBUSH LICENSE
+for the independent mod distributed under the display name "Create Aeronautics: AMBUSH"
+Version 1.0
 
-Copyright (c) 2026 TiyunSol
+Copyright (c) 2026 TiyunSol. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Contact: TiyunSol@proton.me
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+================================================================================
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+DEFINITIONS AND SCOPE
+=======================
+
+1.1 Definitions.
+
+"AMBUSH" means the independent Minecraft mod authored by the Licensor and distributed under the display name "Create Aeronautics: AMBUSH". "AMBUSH" is used throughout this License as shorthand for that mod. The display name does not grant the Licensor ownership of, or licensing authority over, the names, marks, logos, assets, or other protected material of Create, Create Aeronautics, Aeronautics, the Create Team / Creators of Create, or the Simulated Team / Creators of Aeronautics.
+
+"Licensor" means TiyunSol, the copyright holder of AMBUSH.
+
+"You" means the individual or entity exercising permissions under this License.
+
+"Covered Version" means AMBUSH version 1.1.6 and any subsequent version that expressly states that it is released under this License.
+
+"Official Release" means a build of a Covered Version as distributed by the Licensor, with its contents unaltered.
+
+"Protected Material" means the source code, compiled code, textures, models, sounds, artwork, schematics, structures, documentation, and other copyrightable material contained in or distributed with a Covered Version, excluding Example Content, Third-Party Materials, and the text of this License.
+
+The text of this License may be reproduced verbatim for purposes of notice, reference, compliance, discussion, archival, or identification of the terms governing AMBUSH.
+
+"Example Content" means files or content that AMBUSH or its documentation expressly identifies as an example, template, sample, or starter content.
+
+"Independent Content" means content authored independently of AMBUSH's Protected Material using the documented data formats or public integration points of AMBUSH, including encounters, factions, armour sets, encounter definitions, quests, scripts, datapacks, schematics, structures, configuration packs, resource packs, and compatibility data.
+
+"Addon" means a separate software project that depends upon, extends, or interoperates with AMBUSH.
+
+"Modpack" means a collection of Minecraft mods, and optionally configuration and content, assembled for distribution or play as a single package.
+
+"Third-Party Materials" means code, libraries, dependencies, assets, APIs, or other materials contained in or used by AMBUSH that are owned by parties other than the Licensor.
+
+1.2 Application.
+
+This License applies only to Covered Versions. It does not apply to AMBUSH version 1.1.5 or earlier, which are addressed in Section 4.
+
+This License does not bind any future release of AMBUSH. The Licensor may release later versions of AMBUSH under different terms.
+
+1.3 Limits of this License.
+
+This License grants permissions only in respect of material that the Licensor owns or otherwise has authority to license.
+
+It does not purport to grant, restrict, or modify any right in Third-Party Materials, and it does not affect rights that You hold independently of this License.
+
+1.4 Reservation.
+
+All rights not expressly granted by this License are reserved by the Licensor.
+
+1.5 Acceptance.
+
+You are not required to accept this License merely to receive or run an Official Release.
+
+However, activities for which permission from the Licensor would otherwise be required, including redistribution under Section 2.3, are permitted only under this License.
+
+By exercising a permission granted by this License, You accept and agree to comply with the conditions applicable to that permission.
+
+Nothing in this Section requires acceptance of this License for conduct that You are independently entitled to perform under applicable law or under another applicable license.
+
+================================================================================
+
+PERMISSIONS
+==============
+
+Subject to Section 3, You are granted the following permissions without charge and without any requirement to seek prior permission.
+
+2.1 Use.
+
+You may download, install, and use Official Releases for any purpose, personal or commercial.
+
+2.2 Servers.
+
+You may install and run Official Releases on any server, public or private, including servers that accept donations, sell access, sell ranks or cosmetic benefits, or are otherwise operated commercially.
+
+The permission granted by this Section concerns AMBUSH only and does not override independently applicable laws, Minecraft terms or usage guidelines, platform terms, or third-party licenses.
+
+2.3 Modpacks.
+
+You may include an Official Release in any Modpack, public or private, free or paid, on any platform.
+
+This permission covers, without limitation:
+
+(a) bundling the AMBUSH jar within a distributable archive;
+
+(b) referencing the AMBUSH project or file through a Modpack manifest;
+
+(c) having the distribution platform or launcher download AMBUSH separately; and
+
+(d) declaring AMBUSH as a dependency rather than including its files.
+
+No credit, attribution, description text, credits entry, or link to any AMBUSH page is required as a condition of this permission.
+
+Credit and links are appreciated but entirely optional.
+
+Automatic listing of AMBUSH by a platform as an included mod or dependency is permitted and creates no additional obligation.
+
+The following do not constitute modification of AMBUSH for the purposes of this License, provided that the contents of the AMBUSH jar itself are not altered:
+
+changing configuration files;
+
+adding, removing, or altering external datapacks or AMBUSH data files;
+
+changing server configuration;
+
+using supported AMBUSH feature toggles; and
+
+applying resource packs.
+
+This permission applies to genuine Modpacks, including Modpacks that are small, niche, centered around AMBUSH, or in which AMBUSH is a major or primary gameplay feature.
+
+This permission may not be used merely as a pretext to redistribute, mirror, sell access to, or place an access barrier around AMBUSH itself.
+
+A distribution is not a Modpack for purposes of this Section where its primary practical purpose is simply to provide the AMBUSH jar rather than to provide a genuine assembled Minecraft modpack or configured gameplay experience.
+
+A Modpack is not disqualified because AMBUSH is prominently featured, is a primary component of the Modpack, or provides a substantial portion of its gameplay.
+
+2.4 Independent Content.
+
+This License claims no ownership of Independent Content merely because that content is designed to work with AMBUSH.
+
+Subject to any rights of third parties in that Independent Content, You may distribute, modify, open-source, sell, include in Modpacks, and license Independent Content on any terms You are otherwise entitled to choose.
+
+2.5 Example Content.
+
+You may copy, modify, and reuse Example Content without restriction under this License, including in Independent Content that You distribute or sell.
+
+Material that is not expressly identified as Example Content remains Protected Material.
+
+2.6 Addons and integrations.
+
+You may create and distribute an Addon, including one that:
+
+depends on AMBUSH;
+
+declares AMBUSH as a dependency;
+
+compiles against the AMBUSH jar;
+
+imports AMBUSH classes where reasonably necessary for that purpose;
+
+calls AMBUSH APIs;
+
+implements AMBUSH interfaces;
+
+references AMBUSH class names, method names, registry identifiers, resource identifiers, event hooks, data formats, or documented integration points;
+
+detects whether AMBUSH is installed; or
+
+otherwise interoperates with or extends AMBUSH.
+
+An Addon must remain a separate project.
+
+This Section does not permit copying substantial AMBUSH implementation code or Protected Material into the Addon.
+
+2.7 Translations.
+
+You may create and distribute translation or localization packs for AMBUSH, and may reproduce the text reasonably necessary to translate or localize AMBUSH.
+
+You may license and distribute Your original translation work on terms You choose, subject to any rights that remain in the underlying AMBUSH text.
+
+This Section does not permit reproduction of AMBUSH documentation or other Protected Material beyond what the translation or localization purpose reasonably requires.
+
+2.8 Media.
+
+You may create, publish, and monetize videos, livestreams, short-form video, screenshots, articles, tutorials, reviews, showcases, wikis, social media posts, and other media featuring AMBUSH.
+
+You may use the AMBUSH name to identify the mod in such media.
+
+2.9 Private modification.
+
+You may decompile, inspect, modify, and patch AMBUSH for Your own private or internal use.
+
+A server operator may run a privately modified build on their own server.
+
+You may not publicly distribute a modified build.
+
+Providing a modified build to players, including where players must receive it in order to connect, constitutes distribution and is not permitted by this Section.
+
+2.10 Examination and interoperability.
+
+To the extent permitted by applicable law, You may examine, decompile, and reverse engineer AMBUSH for the purposes of:
+
+interoperability;
+
+compatibility development;
+
+diagnosing mod conflicts;
+
+debugging;
+
+understanding its APIs; and
+
+Addon development.
+
+This Section does not permit copying substantial implementation code or Protected Material.
+
+Nothing in this License restricts any act that applicable law expressly permits and that cannot lawfully be restricted by agreement.
+
+2.11 Use of the AMBUSH name.
+
+You may use the names "AMBUSH" and "Ambush" descriptively to identify AMBUSH or to indicate a genuine relationship between AMBUSH and Your project, Modpack, datapack, Addon, media, or other content.
+
+Permitted uses include phrases such as:
+
+"an AMBUSH addon";
+
+"AMBUSH Addon";
+
+"for AMBUSH";
+
+"AMBUSH compatibility";
+
+"AMBUSH integration";
+
+"AMBUSH expansion";
+
+"AMBUSH datapack";
+
+"AMBUSH Modpack"; and
+
+comparable descriptive language.
+
+This permission does not transfer ownership of the AMBUSH name and does not authorize copying or use of AMBUSH logos, artwork, or other Protected Material except as otherwise permitted by this License.
+
+For clarity, the permissions in this Section concern the Licensor's use of "AMBUSH" as the identifier of the Licensor's project. They do not grant any permission, license, ownership interest, trademark right, or other right in the third-party names "Create", "Create Aeronautics", or "Aeronautics", or in any third-party logo, artwork, branding, or other identifying material. Any right to use a third-party name or mark must arise independently of this License.
+
+Descriptive use of the AMBUSH name as permitted above does not imply official status, endorsement, or affiliation.
+
+================================================================================
+
+RESTRICTIONS
+===============
+
+Except as expressly permitted by Section 2, and unless separately authorized in writing by the Licensor, You may not:
+
+3.1 Standalone redistribution.
+
+Distribute, publish, mirror, or otherwise make available an Official Release, or any part of it, on a standalone basis.
+
+This includes:
+
+reuploading AMBUSH to another mod site;
+
+uploading it to a file host or mirror;
+
+publishing it through another launcher; and
+
+sharing it from personal file storage.
+
+Distribution as part of a Modpack under Section 2.3 remains permitted.
+
+3.2 Modified versions and forks.
+
+Distribute a modified, patched, or recompiled build of a Covered Version, or publish a fork, continuation, or renamed release substantially derived from a Covered Version, under any name.
+
+3.3 Source code.
+
+Publicly redistribute, publish, or sublicense the source code of a Covered Version, or maintain a publicly distributed independent version of it.
+
+Where the Licensor makes source code for a Covered Version available on a hosting service whose ordinary functionality includes repository forking, use of that built-in functionality as provided by the terms of that service is not itself a breach of this Section.
+
+Such use does not, however, grant any further permission under this License to:
+
+publish releases;
+
+distribute compiled builds;
+
+sublicense the code; or
+
+otherwise distribute the fork.
+
+Nothing in this License is intended to override any mandatory term of such a service.
+
+3.4 Protected Material and misrepresentation.
+
+Copy, extract, translate, or reuse Protected Material in any other project, mod, or product except as expressly permitted by Section 2.
+
+You may not:
+
+represent Yourself as the author or origin of AMBUSH;
+
+represent Your project as the official AMBUSH mod; or
+
+represent an Addon, Modpack, or other content as officially developed, endorsed, or approved by the Licensor when it is not.
+
+Referencing a class name, method name, registry identifier, resource identifier, data format, or other API identifier does not by itself breach this Section.
+
+Incidental or reference use of Protected Material that is reasonably required for compatibility, Addon development, translation, media, Modpack inclusion, or interoperability is permitted to the extent authorized by Section 2.
+
+3.5 Sale of AMBUSH itself.
+
+Sell AMBUSH itself as the product, or place an Official Release behind a payment, subscription, paid download, ad-gate, or comparable access mechanism where AMBUSH itself is what is being provided.
+
+Charging for server access, for a Modpack, for media, or for Independent Content remains permitted under Section 2.
+
+All such activity remains subject to independently applicable laws, Minecraft terms and usage guidelines, platform terms, and third-party licenses.
+
+3.6 Notices.
+
+Remove, alter, obscure, or falsify the copyright, authorship, or license information contained within an Official Release.
+
+You are not required to reproduce this License, or any AMBUSH notice, in Your own Modpack description, credits, or documentation.
+
+Leaving the notices intact within the unmodified Official Release is sufficient.
+
+The permission in Section 1.1 to reproduce the text of this License remains unaffected.
+
+================================================================================
+
+PRIOR VERSIONS AND THE MIT LICENSE
+=====================================
+
+4.1 AMBUSH version 1.1.5 and all earlier versions were released under the MIT License.
+
+Those versions remain available under the MIT License.
+
+4.2 This License does not revoke, withdraw, limit, or otherwise affect any right granted under the MIT License in respect of those versions.
+
+Any person who received AMBUSH 1.1.5 or earlier under the MIT License may continue to use, copy, modify, merge, publish, distribute, sublicense, sell, fork, and maintain those versions in accordance with the MIT License.
+
+4.3 This License governs only Covered Versions.
+
+Code, assets, and other material first introduced in a Covered Version are licensed under this License and are not made available under the MIT License merely because earlier AMBUSH releases used the MIT License.
+
+4.4 Where material appears in both an MIT-licensed version and a Covered Version, the MIT License continues to apply to that material as it was distributed in the MIT-licensed version.
+
+================================================================================
+
+THIRD-PARTY MATERIALS AND EXTERNAL TERMS
+============================================
+
+5.1 Third-Party Materials.
+
+AMBUSH may incorporate, depend upon, or interoperate with Third-Party Materials, which are subject to their own license terms.
+
+Those terms continue to apply, and nothing in this License is intended to override, restrict, or replace them.
+
+5.2 Third-party contributions.
+
+Where AMBUSH contains third-party contributions or other third-party material subject to a separate license, including third-party contributions previously made available under the MIT License, that separate license continues to apply according to its terms.
+
+Nothing in this License purports to relicense third-party material where the Licensor lacks authority to do so.
+
+5.3 Third-party games and platforms.
+
+The permissions granted by this License are permissions from the Licensor concerning AMBUSH only.
+
+They do not grant permission on behalf of Mojang Studios, Microsoft, a distribution platform, another mod author, or any other third party.
+
+Activities permitted by this License, including commercial servers, paid Modpacks, distribution, Addons, integrations, and media, remain subject to all independently applicable:
+
+laws and regulations;
+
+Minecraft terms and usage guidelines;
+
+platform and hosting-service terms;
+
+launcher or distribution-service terms; and
+
+third-party licenses and permissions.
+
+A permission granted by this License means only that the Licensor does not prohibit that activity with respect to the Licensor's rights in AMBUSH. It does not represent or guarantee that the activity is permitted by any other applicable party, agreement, policy, or law.
+
+AMBUSH is not affiliated with, sponsored by, approved by, or endorsed by Mojang Studios or Microsoft.
+
+5.4 Create and Create Aeronautics names, projects, and materials.
+
+"Create", the Create project, the Create Team / Creators of Create, and their respective names, marks, logos, code, artwork, textures, models, sounds, documentation, branding, and other materials are third-party identifiers or Third-Party Materials as applicable. The Licensor does not claim ownership of them.
+
+"Create Aeronautics", "Aeronautics", the Simulated Project, the Simulated Team / Creators of Aeronautics, and their respective names, marks, logos, code, artwork, textures, models, sounds, documentation, branding, and other materials are third-party identifiers or Third-Party Materials as applicable. The Licensor does not claim ownership of them.
+
+The display name "Create Aeronautics: AMBUSH" is used to identify AMBUSH as a separate interoperability and addon-oriented project associated with gameplay in the Create and Create Aeronautics ecosystem. The display name does not represent AMBUSH as an official distribution, component, release, fork, continuation, or product of Create, Create Aeronautics, the Create Team / Creators of Create, or the Simulated Team / Creators of Aeronautics.
+
+Unless an applicable rights holder expressly states otherwise, AMBUSH is not affiliated with, sponsored by, approved by, or endorsed by the Create Team / Creators of Create or the Simulated Team / Creators of Aeronautics.
+
+Nothing in this License grants permission to copy, extract, redistribute, modify, or reuse any Create or Create Aeronautics logo, texture, model, sound, artwork, branding asset, or other third-party protected material except to the extent permission is separately provided by the applicable rights holder or applicable law.
+
+Where AMBUSH interoperates with Create, Create Aeronautics, Simulated, Create Big Cannons, Sable, or another third-party project through dependency declarations, APIs, registry identifiers, public hooks, runtime detection, reflection, mixins, or other compatibility mechanisms, that interoperability does not transfer ownership of either project's material to the other and does not alter the independently applicable license terms of the third-party project.
+
+================================================================================
+
+TERMINATION
+==============
+
+6.1 The permissions granted by Section 2 terminate automatically upon Your material breach of Section 3.
+
+6.2 If the breach is capable of being cured, the permissions are reinstated if You cure the breach and cease the infringing activity within 30 days of receiving written notice from the Licensor.
+
+This opportunity to cure is available once for any given breach.
+
+6.3 The Licensor may permanently terminate the permissions granted by this License in the case of repeated or wilful breach.
+
+6.4 Termination does not affect:
+
+Your rights in Independent Content;
+
+Your rights in Addons that do not themselves breach this License;
+
+rights that You hold independently of this License;
+
+rights under applicable third-party licenses; or
+
+Your rights in versions of AMBUSH governed by Section 4.
+
+================================================================================
+
+ADDITIONAL PERMISSION
+========================
+
+Permission for anything not granted by this License may be requested from the Licensor at:
+
+TiyunSol@proton.me
+
+Any additional permission must be granted in writing and applies only to the person and circumstances to which it is given.
+
+================================================================================
+
+SEVERABILITY
+===============
+
+If any provision of this License is held to be invalid, illegal, or unenforceable under applicable law, that provision shall be limited or modified only to the minimum extent necessary, and the remaining provisions of this License shall remain in effect to the maximum extent permitted by law.
+
+Failure by the Licensor to enforce any provision of this License in one instance does not waive the Licensor's right to enforce that provision in another instance.
+
+================================================================================
+
+NO WARRANTY
+==============
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, AMBUSH IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OR CONDITION OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, OR THAT AMBUSH WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE.
+
+NO WARRANTY IS GIVEN THAT AMBUSH IS SUITABLE FOR USE WITH ANY PARTICULAR MOD, MODPACK, SERVER, OR WORLD SAVE.
+
+================================================================================
+
+LIMITATION OF LIABILITY
+===========================
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE LICENSOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH AMBUSH OR THE USE OR OTHER DEALINGS IN AMBUSH, INCLUDING WITHOUT LIMITATION ANY LOSS OF OR DAMAGE TO WORLD SAVES OR OTHER DATA.
+
+NOTHING IN THIS LICENSE EXCLUDES OR LIMITS LIABILITY THAT CANNOT LAWFULLY BE EXCLUDED OR LIMITED.
