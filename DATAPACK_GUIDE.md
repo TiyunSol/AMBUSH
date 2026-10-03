@@ -1,6 +1,6 @@
 # AMBUSH Datapack Guide
 
-(DEV NOTE: AMBUSH will be recieving even more content, and in the next update past 1.1.6, some of these things may be different, they will still work but you will be less limited).
+(DEV NOTE: AMBUSH will be recieving even more content, and in the next update past 1.1.6, some of these things may be different, they will still work but you will be less limited, INVASION Format is still in development, and armor sets are not documented here but they are possible and in the mod).
 Ambush is a server-authoritative NeoForge 1.21.1 mod for data-driven hostile encounters. Definitions are loaded from every active server datapack at:
 
 ```text
