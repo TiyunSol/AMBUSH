@@ -1,3 +1,142 @@
+# AMBUSH 1.1.7
+
+### New content
+- More Bundled encounters! removed some old annoying ones!
+- Added vehicle and emplacement templates, including the Villager Anti-Air Car, Cast Iron Anti-Air Car, twin artillery car, Cast Iron Alloy Works, Dreadzeppelin, End patrol ships, Ender Hover Platform, and additional illager artillery installations.
+- Added traveling merchant and escort templates, villager gift balloons, and a villager potato airship.
+- Added **Coastal Fleet Siege**, a naval invasion with 15 waves and a boss wave every third wave (WAVE ASSAULT MODE "INVASION" IS VERY MUCH UNFINISHED)
+- Added five armor sets: Artillery Crew, Iron Boarder, Iron Raider, Ribbed Archer, and Ribbed Guard. (datapacks may now have armorsets! these apply to mobs on ambushes, which alter their armor and held items, giving them names and drop chances)
+
+### Factions and progression
+- Added a dedicated hostile End faction.
+- Expanded reputation bounds from **±2,000 to ±10,000** and moved the alliance threshold to **5,000**.
+- Added reputation decay toward neutral standing.
+- Added periodic villager supply gifts, with gift quality determined by reputation and bonuses from defeating enemy vessels.
+- Added End progression and a fun suprise when you first enter the end
+- Extended the normal natural-encounter window from **40–100 minutes to 40–140 minutes**. (or 2 - 7 in game days, with 4 being the most spawned day)
+
+### Weapons and combat
+- Added persistent cannon safe mode for protecting terrain from AMBUSH-owned cannon fire. Use the command to stop all ambushes from griefing terrain with cannons.
+- Expanded support for additional CBC ammunition and ballistic types.
+- Added automatic ammunition-box refilling.
+- Reworked mechanical and swivel turret aiming, calibration, angle limits, and physical barrel alignment checks.
+- Expanded configurable firing intervals, reload timing, and aiming tolerances (for datapacks)
+  
+
+### Vehicles and navigation
+- Added more advanced terrain-aware route probing, obstacle detours, and fleet navigation controls.
+- Improved ground-vehicle footprint, wheel-contact, slope, step, and hazard checks.
+- Added speed-dependent terrain lookahead and checked reverse recovery for stalled cars.
+- Expanded vehicle recovery, landing, wreck, and despawn handling.
+- Added Merchant approach and landing behavior.
+  
+
+### Crew, rendering, and performance
+- Expanded crew combat, equipment, seating, retention, and navigation aboard moving vessels.
+- Added configurable long-distance vessel tracking and rendering.
+- Improved moving-vessel projectile coordinates and explosion handling, you may now blow up ambush ships without causing server lag.
+- Improved kinetic-network transfer and restoration during assembly.
+- Added incremental patrol landmark searches and unloaded-chunk checks for crew sightlines.
+- Reduced repeated terrain-scan work and expanded control, aiming, and performance diagnostics.
+
+### Datapack support
+- Added faction-gift, faction-alias, loot-alias, and vessel-render resources.
+- Expanded ship profiles, conditional controls, tactical settings, and authoring validation.
+- Added native `.excraft` schematic placement support and additional optional integrations (Currently Toolgun schematic '.excraft' can spawn crew but has no ship AI)
+
+### And more
+- I got carried away, theres alot of minor bug fixes and improvements, two new bosses, etc. Go have fun! report bugs in the discord please!
+- 
+# AMBUSH 1.1.6
+![](https://media.forgecdn.net/attachments/1611008/changelog/changelog_0a019228-7d16-4ba5-b1e2-5b6ee4eb3fa8.png)
+# AMBUSH 1.1.6 — Faction Update
+## Factions
+
+- Implemented faction reputation and faction-based hostility.
+- Added Villager and Piglin allied support calls.
+- Added Villager and Piglin faction horns which summon an ally.
+- Added battles between opposing factions.
+- Factions can now react differently depending on the player's reputation.
+
+## Villager Fleets
+
+- Implemented Villager airships and fleets.
+- Added fishing fleets, cargo convoys, escorts, and convoy interception encounters.
+- Villager ships can fight hostile factions and defend allied players.
+- Added Villager support balloons and airships.
+
+## New Airships & Vehicles
+
+- Added the **Cast Iron Phantom** and Dirt Retribution variant (dont break too much dirt :) ).
+- Added the **Cast Iron Frigate**.
+- Added new Redsail ships and a large Redsail fleet.
+- Added new Skeleton airships and fleet formations.
+- Added Bogged balloon encounters.
+- Added Pillager cars, mining vehicles, and additional airships.
+- Added lighter potato-cannon ships for earlier progression.
+- Added new Piglin airship (its deadly sorry).
+- Added two mining operations that are defended.
+
+## New Ground Encounters
+
+- Added Stray encounters for frozen regions.
+- Added Bogged encounters for swamps.
+- Added underground Illager mining encounters.
+- Added Dark Forest Illager encounters.
+- Added village-related Illager attacks and patrols.
+
+## Natural Spawning
+
+- Reworked natural airship spawning around a long-term progression curve.
+- Normal natural encounters now occur roughly every **2–5 Minecraft days**.
+- Major encounters are significantly rarer.
+- Encounter selection now considers progression, faction reputation, biome, dimension, structures, weather, and other conditions.
+- Powerful ships and bosses have lower natural spawn chances than ordinary encounters.
+- Added support for natural boat encounters around beaches and coastlines.
+
+## Airship Combat
+
+- Added aligned individual cannon firing.
+- Added coordinated aligned cannon salvos.
+- Added cannon reload and firing-cycle management.
+- Added cannon alignment checks for supported ships.
+- Added hardware-driven altitude control for combat airships.
+- Added fleet steering and coordinated ship AI.
+- Added broader faction-vs-faction airship combat.
+- Added swivel-mount turret platform support.
+
+## Boss Encounters
+
+- Added and expanded late-game fleet boss encounters.
+- Added staged reinforcements and combat events based on boss health.
+- Added **Iron Tide** and **Storm Breaker** fleet combat behavior.
+- Boss encounters are gated behind later progression and lower natural spawn rates.
+
+## Cleanup & Stability
+
+- Added queued cleanup for large AMBUSH encounters.
+- Added safer handling for split and destroyed airships.
+- Reduced the chance of ships spawning too close to players.
+- Added limits to prevent natural encounters from endlessly accumulating ships.
+- Added microstructure support to avoid areas players have built in or frequent (NO MORE SCULK TOWERS IN YOUR BASE!).
+
+## Commands & Administration
+
+- Expanded `/ambush` encounter and invasion commands.
+- Added natural encounter rate controls up to **20x** for testing (can also reduce spawn rates).
+- Added faction reputation commands.
+- Added encounter spawning controls, debug information, and unlock tools.
+- Added invasion joining, leaving, readying, profiles, and wave controls (STILL IN PROGRESS, WORKS FULLY BUT STARTS OFF SLOW FOR NOW).
+
+## Compatibility
+
+- Added **Guard Villagers** integration, villagers have a data driven chance to be replaced by a guard villager on aeronautics encounters.
+- Added **Offroad** integration for supported vehicle encounters.
+- Encounters requiring unavailable optional mods are automatically skipped.
+- 
+# AMBUSH 1.1.5
+fixed stuff lol idk
+
 # AMBUSH 1.1.4
 
 ## New content
