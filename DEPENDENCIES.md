@@ -32,6 +32,8 @@ Quests can unlock ambushes. Quests can also allow for the player to recieve an i
 
 ### Lootr
 
+## Create Burner fuel 
+
 ## Failure behavior
 
 - Missing optional registry content is rejected or skipped with bounded diagnostics.
@@ -40,7 +42,7 @@ Quests can unlock ambushes. Quests can also allow for the player to recieve an i
 - Generic encounters continue working with every optional integration absent.
 
 Datapack authors should reference only registry content available in their selected mod set.
-# AMBUSH 1.1.4 optional ship stack
+# AMBUSH 1.1.7 optional ship stack
 
 Ship actions require the following tested API line:
 
@@ -49,7 +51,6 @@ Ship actions require the following tested API line:
 - Create 6.0.10
 - Sable 2.0.3
 - Create Simulated / Create Aeronautics 1.3.0
-- Sable Companion 1.6.0 (normally provided by the installed Sable stack)
 
 Generic AMBUSH encounters remain usable when the optional ship stack is absent.
 
