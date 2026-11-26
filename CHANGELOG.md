@@ -1,3 +1,73 @@
+# AMBUSH 1.1.9
+
+### Convoys, quests, and skirmishes
+
+- Added **22 bundled encounters**, including convoy escorts, faction skirmishes, scout patrols, field guns, and raid reinforcements.
+- A fishing convoy can set course for a distant ocean, giving players a fleet to defend along the way.
+- A rarer merchant convoy shares the regular merchant fleet’s cooldown. It lands so players can board and learn about a distant village. Once the player steps off, the convoy departs.
+- Added **Bellwatch Interception**, **Merchant Screen**, and **Ossuary Convoy**. Players can intervene in these faction battles and earn reputation for the side they help.
+- Expanded encounter chains with maps and compasses that point to the next destination. The captain’s quest drops glowing items so its clues are easier to find, and the outpost captain’s pillagers carry Multishot crossbows.
+- Added more ways to earn faction reputation, including giving gold to piglins and spending time in the Nether wearing gold armor.
+
+### The Villager Artillery Boat
+
+- Added a rare ocean encounter with a villager-crewed artillery boat. It can also answer a Villager Horn or appear in a separate battle against the Medium Redsail Fleet.
+- Its outward-facing cannons fire proximity-fuzed HE shells. They use direct fire within **96 blocks** and artillery fire at longer ranges.
+- The crew includes fishermen with special trades and an iron golem aboard. The boat’s cargo holds carry villager supplies and support Lootr.
+
+### Scouts, field guns, and reinforcements
+
+- Added the **Signal Crossbow Picket**, **Redsail Signal Cutter**, **Forest Flare Lookout**, and **Village Signal Runner**. Some scouts signal an incoming attack, giving players time to react.
+- Added roadside and skeletal field-gun patrols, bronze flak and roundshot carts, the Cast Iron Twin-Cannon Car, and an illager interceptor armed with HE shells that can attack the tractor.
+- Pillager raids have a small chance to receive a pair of gun carts. Reinforcements arrive nearby and out of sight, with two autocannons, two cast-iron cannons, or one of each.
+- The Storm Relay Skeleton Car can call reinforcements when a player gets close. Selected ships can also call for help after taking damage.
+
+### Loot, progression, and ship behavior
+
+- Added more distinct weapons and armor for pillager, piglin, and undead crews. Encounters can feature Multishot crossbows, firework crossbows, enchanted axes, or armored drowned with tridents. Selected boss pilots carry stronger weapons with a chance to drop them.
+- Adjusted ship selection so progression has a more noticeable effect on ship size. Natural ship encounters aim for roughly **3–7 Minecraft days** between arrivals, with repeat protection to reduce back-to-back appearances by the same encounter.
+- Both ships in the **Berry–Skeleton Skirmish** now carry Lootr-compatible cargo. The Dreadzeppelin’s two blaze-cake barrels remain ordinary fuel barrels so their funnels can draw from them.
+- Both Cast Iron Phantom variants can acquire enemies behind cover. Their guns still need range, ammunition, and a firing angle.
+
+### Invasions, server controls, and datapacks
+
+- Encounter chains can lead into invasions. Added more control over follow-up destinations, scout signals, reinforcement conditions, equipment, and reputation rewards.
+- Added commands to disable whole encounter categories, including cars, boats, airships, and structures. The category previously called `microstructure` is now displayed as `structure`.
+- Added the ship-action option `ignore_target_cover`. Setting it to `true` lets a ship acquire covered players and underground hostile mobs. The default uses the ordinary visibility rules.
+
+# AMBUSH 1.1.8
+
+### Nine new fleet encounters
+
+- Six illager ships gained **three-ship fleet encounters**: the Spear Raider, Spear Drill, Berry, Cakeglow, Melon Broadside, and Pumpkin Broadside.
+- Villager patrol ships, potato gunships, and tiny autocannon ships can also travel in fleets of three. Each ship brings its own crew, weapons, trades, and cargo.
+
+### Merchants and factions
+
+- Traveling merchants visit less often. Their convoys land to trade, depart, and despawn after clearing nearby players. More illager ships, cars, and fleets can intercept them.
+- Completed villager trades award **0.25 villager reputation**. Datapacks can also use a completed trade to trigger an encounter.
+- Full Moon Witch Reckoning now requires a full moon **and** a swamp. Restored the Spear Drill ship’s missing loot.
+
+### Invasions and ship cleanup
+
+- Invasions point participants toward the nearest remaining enemy. Once a wave reaches its final **30%**, surviving enemies are highlighted so the last straggler is easier to find.
+- Fleets check the center and corners of their hulls when looking for a concealed spawn. Larger ships approach from farther away, while tiny ships can arrive closer.
+- Fixed waves stalling after a ship broke apart. Detached propellers no longer count as fresh, full-health ships, and cleanup remembers detached pieces when their chunks unload.
+- A wave keeps its selected faction across spawn retries and world reloads unless the invasion allows mixed factions.
+
+### Crew, compatibility, and performance
+
+- Defeating a ship’s entire crew disables its autonomous movement and weapons. Individual encounters still control capture and rescue.
+- Added **Villagers Reborn** crew compatibility and corrected the seating height of replacement villagers and Guard Villagers on Create seats.
+- Fixed pitch-control detection on the Medium Cast Iron ship and Dreadzeppelin turrets.
+- Reduced out-of-range checks on the Cast Iron Anti-Air Car and repeated damage checks on destroyed hull blocks. Several ships now spread placement, assembly, or cannon preparation across ticks to reduce spawn spikes.
+
+### Server controls and datapacks
+
+- `/ambush disable` disables bundled encounters. `/ambush disable <namespace>` disables an add-on’s encounters, including future additions to that namespace. The setting survives restarts.
+- Admin debug mode persists after relogging, and manual summon failures explain why the encounter was declined.
+- Added a **Scorched Guns** raid-start trigger. Datapacks can respond to every raid or select specific raid IDs.
+- Ship definitions can choose initial loads and reloads from a pool of modded shells. Autocannon hopper loot can also include fuzed modded rounds.
 # AMBUSH 1.1.7
 
 ### New content
